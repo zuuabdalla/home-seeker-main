@@ -1,0 +1,36 @@
+<%- include('../partials/dash-start') %>
+<%- include('../partials/dash-title', { heading: 'Listings', sub: 'Approve new and edited listings, and remove anything that breaks the rules.' }) %>
+
+<div class="row between" style="margin-bottom:6px">
+  <nav class="filter-tabs">
+    <% [['all', 'All'], ['pending', 'Pending'], ['approved', 'Approved'], ['rejected', 'Rejected']].forEach(function (t) { %>
+      <a href="/admin/properties?status=<%= t[0] %><%= q ? '&q=' + encodeURIComponent(q) : '' %>" class="<%= status === t[0] ? 'active' : '' %>"><%= t[1] %></a>
+    <% }) %>
+  </nav>
+  <form method="get" action="/admin/properties" class="row" style="gap:8px;margin-bottom:18px">
+    <input type="hidden" name="status" value="<%= status %>">
+    <div class="input-group"><i class="bi bi-search"></i><input class="input" name="q" value="<%= q %>" placeholder="Search title or area" style="min-height:38px"></div>
+  </form>
+</div>
+
+<% if (!properties.length) { %>
+  <div class="card"><%- include('../partials/empty', { icon: 'bi-buildings', heading: 'No listings here', text: status === 'pending' ? 'Nothing is waiting for review.' : 'Try another filter or search.' }) %></div>
+<% } else { %>
+<div class="card table-wrap">
+  <table class="table">
+    <thead><tr><th>Listing</th><th>Landlord</th><th>Price</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      <% properties.forEach(function (p) { %>
+      <tr>
+        <td><div class="prop"><img class="thumb" src="<%= p.primary_image || FALLBACK_IMAGE %>" alt=""><div><strong><%= p.title %></strong><span class="small muted"><%= p.town %>, <%= p.county %> · <%= timeAgo(p.updated_at) %></span></div></div></td>
+        <td><%= p.landlord_name %></td>
+        <td class="nowrap"><%= kes(p.price) %></td>
+        <td><%- include('../partials/status', { s: p.verification_status }) %></td>
+        <td><%- include('_review-actions', { p }) %></td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<% } %>
+<%- include('../partials/dash-end') %>

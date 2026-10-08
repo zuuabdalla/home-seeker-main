@@ -1,0 +1,25 @@
+<%- include('../partials/dash-start') %>
+<%- include('../partials/dash-title', { heading: 'Payments', sub: 'M-Pesa promotion payments, confirmed directly with PayHero.' }) %>
+<% if (!payments.length) { %>
+  <div class="card"><%- include('../partials/empty', { icon: 'bi-credit-card', heading: 'No payments yet', text: 'Promotion payments from landlords will appear here.' }) %></div>
+<% } else { %>
+<div class="card table-wrap">
+  <table class="table">
+    <thead><tr><th>Date</th><th>Landlord</th><th>Listing</th><th>Package</th><th>Amount</th><th>M-Pesa ref</th><th>Status</th></tr></thead>
+    <tbody>
+      <% payments.forEach(function (pay) { %>
+      <tr>
+        <td class="nowrap"><%= date(pay.created_at) %></td>
+        <td><%= pay.user_name %><div class="small muted"><%= pay.phone_number %></div></td>
+        <td><%= pay.property_title || '—' %></td>
+        <td><%= pay.package_name %></td>
+        <td class="nowrap"><strong><%= kes(pay.amount) %></strong></td>
+        <td class="small"><%= pay.transaction_reference || '—' %></td>
+        <td><%- include('../partials/status', { s: pay.status }) %></td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<% } %>
+<%- include('../partials/dash-end') %>

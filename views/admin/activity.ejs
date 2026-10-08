@@ -1,0 +1,42 @@
+<%- include('../partials/dash-start') %>
+<%- include('../partials/dash-title', { heading: 'Inquiries & viewings', sub: 'What house hunters are asking for across the platform.' }) %>
+
+<div class="card table-wrap" style="margin-bottom:24px">
+  <div class="card-head"><h2>Inquiries</h2><span class="small muted"><%= inquiries.length %> most recent</span></div>
+  <% if (inquiries.length) { %>
+  <table class="table">
+    <thead><tr><th>From</th><th>Listing</th><th>Message</th><th>Status</th><th>When</th></tr></thead>
+    <tbody>
+      <% inquiries.forEach(function (i) { %>
+      <tr>
+        <td><strong><%= i.seeker_name %></strong><div class="small muted"><%= i.seeker_phone %></div></td>
+        <td><%= i.property_title %><div class="small muted"><%= i.landlord_name %></div></td>
+        <td class="small" style="max-width:320px"><%= i.message.slice(0, 120) %><%= i.message.length > 120 ? '…' : '' %></td>
+        <td><%- include('../partials/status', { s: i.status }) %></td>
+        <td class="nowrap small muted"><%= timeAgo(i.created_at) %></td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  <% } else { %><p class="card-body muted" style="margin:0">No inquiries yet.</p><% } %>
+</div>
+
+<div class="card table-wrap">
+  <div class="card-head"><h2>Viewings</h2><span class="small muted"><%= bookings.length %> most recent</span></div>
+  <% if (bookings.length) { %>
+  <table class="table">
+    <thead><tr><th>When</th><th>Who</th><th>Listing</th><th>Status</th></tr></thead>
+    <tbody>
+      <% bookings.forEach(function (b) { %>
+      <tr>
+        <td class="nowrap"><%= date(b.viewing_date + 'T00:00') %> · <%= time(b.viewing_time) %></td>
+        <td><strong><%= b.seeker_name %></strong><div class="small muted"><%= b.seeker_phone %></div></td>
+        <td><%= b.property_title %><div class="small muted"><%= b.landlord_name %></div></td>
+        <td><%- include('../partials/status', { s: b.status }) %></td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  <% } else { %><p class="card-body muted" style="margin:0">No viewings yet.</p><% } %>
+</div>
+<%- include('../partials/dash-end') %>

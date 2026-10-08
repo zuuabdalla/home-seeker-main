@@ -1,0 +1,129 @@
+<%- include('../partials/doc-start') %>
+<%- include('../partials/header') %>
+<%
+  const f = filters;
+  const chips = [];
+  if (f.q) chips.push(['q', '“' + f.q + '”']);
+  if (f.county) chips.push(['county', f.county]);
+  if (f.type) chips.push(['type', label(f.type)]);
+  if (f.listing) chips.push(['listing', f.listing === 'sale' ? 'For sale' : 'For rent']);
+  if (f.min_price) chips.push(['min_price', 'From ' + kes(f.min_price)]);
+  if (f.max_price) chips.push(['max_price', 'Up to ' + kes(f.max_price)]);
+  if (f.beds) chips.push(['beds', f.beds === '0' ? 'Studio / bedsitter' : f.beds + ' bedrooms']);
+  if (f.furnished) chips.push(['furnished', 'Furnished']);
+  if (f.amenity) chips.push(['amenity', AMENITIES[f.amenity] || f.amenity]);
+%>
+<main class="container">
+  <div class="page-head">
+    <h1><%= f.listing === 'sale' ? 'Homes for sale' : f.listing === 'rent' ? 'Homes for rent' : 'Browse homes' %><%= f.county ? ' in ' + f.county : '' %></h1>
+    <p><%= total.toLocaleString() %> verified <%= total === 1 ? 'listing' : 'listings' %> match your search.</p>
+  </div>
+
+  <div class="listing-layout">
+    <details class="card filters" open data-filters>
+      <summary><span><i class="bi bi-sliders"></i> Filters</span><i class="bi bi-chevron-down"></i></summary>
+      <div class="card-body">
+        <form method="get" action="/properties">
+          <div class="field">
+            <label for="f-q">Area or keyword</label>
+            <div class="input-group"><i class="bi bi-search"></i><input class="input" id="f-q" name="q" value="<%= f.q %>" placeholder="e.g. Kilimani"></div>
+          </div>
+          <div class="field">
+            <span class="label">Looking to</span>
+            <div class="segmented">
+              <label><input type="radio" name="listing" value="" <%= !f.listing ? 'checked' : '' %>><span>Any</span></label>
+              <label><input type="radio" name="listing" value="rent" <%= f.listing === 'rent' ? 'checked' : '' %>><span>Rent</span></label>
+              <label><input type="radio" name="listing" value="sale" <%= f.listing === 'sale' ? 'checked' : '' %>><span>Buy</span></label>
+            </div>
+          </div>
+          <div class="field">
+            <label for="f-county">County</label>
+            <select class="select" id="f-county" name="county">
+              <option value="">All counties</option>
+              <% COUNTIES.forEach(function (c) { %><option <%= f.county === c ? 'selected' : '' %>><%= c %></option><% }) %>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-type">Property type</label>
+            <select class="select" id="f-type" name="type">
+              <option value="">Any type</option>
+              <% PROPERTY_TYPES.forEach(function (t) { %><option value="<%= t %>" <%= f.type === t ? 'selected' : '' %>><%= label(t) %></option><% }) %>
+            </select>
+          </div>
+          <div class="field">
+            <span class="label">Price (KSh)</span>
+            <div class="form-grid" style="gap:8px">
+              <input class="input" type="number" name="min_price" min="0" step="1000" placeholder="Min" value="<%= f.min_price %>" aria-label="Minimum price">
+              <input class="input" type="number" name="max_price" min="0" step="1000" placeholder="Max" value="<%= f.max_price %>" aria-label="Maximum price">
+            </div>
+          </div>
+          <div class="field">
+            <label for="f-beds">Bedrooms</label>
+            <select class="select" id="f-beds" name="beds">
+              <option value="">Any</option>
+              <option value="0" <%= f.beds === '0' ? 'selected' : '' %>>Studio / bedsitter</option>
+              <% ['1','2','3'].forEach(function (b) { %><option value="<%= b %>" <%= f.beds === b ? 'selected' : '' %>><%= b %> bedroom<%= b === '1' ? '' : 's' %></option><% }) %>
+              <option value="4+" <%= f.beds === '4+' ? 'selected' : '' %>>4 or more</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-amenity">Must have</label>
+            <select class="select" id="f-amenity" name="amenity">
+              <option value="">No preference</option>
+              <% Object.keys(AMENITIES).forEach(function (a) { %><option value="<%= a %>" <%= f.amenity === a ? 'selected' : '' %>><%= AMENITIES[a] %></option><% }) %>
+            </select>
+          </div>
+          <label class="check"><input type="checkbox" name="furnished" value="1" <%= f.furnished ? 'checked' : '' %>> Furnished only</label>
+          <input type="hidden" name="sort" value="<%= f.sort %>">
+          <button class="btn btn-primary btn-block" type="submit">Show results</button>
+          <% if (chips.length) { %><a href="/properties" class="btn btn-ghost btn-block">Clear all filters</a><% } %>
+        </form>
+      </div>
+    </details>
+
+    <section>
+      <div class="results-bar">
+        <span class="muted small">Showing <%= properties.length %> of <%= total %></span>
+        <form method="get" action="/properties" class="row" style="gap:8px">
+          <% Object.keys(f).forEach(function (k) { if (k !== 'sort' && f[k]) { %><input type="hidden" name="<%= k %>" value="<%= f[k] %>"><% } }) %>
+          <label for="sort" class="small muted">Sort by</label>
+          <select class="select" id="sort" name="sort" data-autosubmit>
+            <option value="newest" <%= f.sort === 'newest' || !f.sort ? 'selected' : '' %>>Featured & newest</option>
+            <option value="price_asc" <%= f.sort === 'price_asc' ? 'selected' : '' %>>Price: low to high</option>
+            <option value="price_desc" <%= f.sort === 'price_desc' ? 'selected' : '' %>>Price: high to low</option>
+            <option value="popular" <%= f.sort === 'popular' ? 'selected' : '' %>>Most viewed</option>
+          </select>
+          <noscript><button class="btn btn-sm">Apply</button></noscript>
+        </form>
+      </div>
+
+      <% if (chips.length) { %>
+      <div class="active-filters">
+        <% chips.forEach(function (c) { %>
+          <a href="/properties<%= queryWith(f, { [c[0]]: '', page: '' }) %>" aria-label="Remove filter <%= c[1] %>"><%= c[1] %> <i class="bi bi-x-lg"></i></a>
+        <% }) %>
+      </div>
+      <% } %>
+
+      <% if (properties.length) { %>
+        <div class="grid-cards">
+          <% properties.forEach(function (p) { %><%- include('../partials/property-card', { p }) %><% }) %>
+        </div>
+
+        <% if (pages > 1) { %>
+        <nav class="pagination" aria-label="Pages">
+          <% if (page > 1) { %><a href="/properties<%= queryWith(f, { page: page - 1 }) %>" aria-label="Previous page"><i class="bi bi-chevron-left"></i></a><% } %>
+          <% for (let i = Math.max(1, page - 2); i <= Math.min(pages, page + 2); i++) { %>
+            <% if (i === page) { %><span class="current" aria-current="page"><%= i %></span><% } else { %><a href="/properties<%= queryWith(f, { page: i }) %>"><%= i %></a><% } %>
+          <% } %>
+          <% if (page < pages) { %><a href="/properties<%= queryWith(f, { page: page + 1 }) %>" aria-label="Next page"><i class="bi bi-chevron-right"></i></a><% } %>
+        </nav>
+        <% } %>
+      <% } else { %>
+        <div class="card"><%- include('../partials/empty', { icon: 'bi-house-slash', heading: 'No homes match yet', text: 'Try widening your budget, choosing another area, or removing a filter. New homes are added every day.', actionHref: '/properties', actionText: 'Clear filters' }) %></div>
+      <% } %>
+    </section>
+  </div>
+</main>
+<%- include('../partials/footer') %>
+<%- include('../partials/doc-end') %>

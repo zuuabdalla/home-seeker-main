@@ -1,0 +1,208 @@
+<%- include('../partials/doc-start', { map: true }) %>
+<%- include('../partials/header') %>
+<%
+  const p = property;
+  const imgs = p.images.length ? p.images : [{ image_url: FALLBACK_IMAGE }];
+  const place = [p.estate, p.town, p.county].filter(Boolean).join(', ');
+  const phoneDigits = String(p.landlord_phone || '').replace(/\D/g, '').replace(/^0/, '254');
+  const isSaved = savedIds.includes(p.id);
+  const today = new Date().toISOString().slice(0, 10);
+  const suitable = [p.details.suitable_for_families && 'Families', p.details.suitable_for_professionals && 'Professionals', p.details.suitable_for_students && 'Students'].filter(Boolean);
+  const amenityIcons = { parking: 'bi-p-circle', wifi: 'bi-wifi', water: 'bi-droplet', electricity: 'bi-lightning-charge', security: 'bi-shield-check', cctv: 'bi-camera-video', borehole: 'bi-moisture', balcony: 'bi-sun', garden: 'bi-tree', swimming_pool: 'bi-water', gym: 'bi-heart-pulse', lift: 'bi-arrow-down-up', laundry: 'bi-basket', generator: 'bi-plug', gated_community: 'bi-signpost-split', playground: 'bi-balloon' };
+%>
+<% if (isPreview) { %>
+<div class="preview-banner"><div class="container"><i class="bi bi-eye"></i> Preview: this listing is <strong><%= label(p.verification_status) %></strong> and is not visible to the public yet.<% if (p.rejection_reason) { %> Reason: <%= p.rejection_reason %><% } %></div></div>
+<% } %>
+<main class="container">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/properties">Homes</a><i class="bi bi-chevron-right"></i>
+    <a href="/properties?county=<%= encodeURIComponent(p.county) %>"><%= p.county %></a><i class="bi bi-chevron-right"></i>
+    <span><%= p.town %></span>
+  </nav>
+
+  <div class="gallery <%= imgs.length === 1 ? 'single' : '' %>">
+    <div class="main"><img src="<%= imgs[0].image_url %>" alt="<%= p.title %>" data-gallery-main></div>
+    <% if (imgs.length > 1) { %>
+    <div class="side">
+      <% imgs.slice(1, 3).forEach(function (img, i) { %>
+        <button type="button" data-gallery-index="<%= i + 1 %>" aria-label="Show photo <%= i + 2 %>">
+          <img src="<%= img.image_url %>" alt="">
+          <% if (i === 1 && imgs.length > 3) { %><span class="more">+<%= imgs.length - 3 %> photos</span><% } %>
+        </button>
+      <% }) %>
+    </div>
+    <% } %>
+  </div>
+  <% if (imgs.length > 1) { %>
+  <div class="thumbs" data-gallery>
+    <% imgs.forEach(function (img, i) { %>
+      <button type="button" class="<%= i === 0 ? 'active' : '' %>" data-gallery-index="<%= i %>" data-src="<%= img.image_url %>" aria-label="Photo <%= i + 1 %>"><img src="<%= img.image_url %>" alt=""></button>
+    <% }) %>
+  </div>
+  <% } %>
+
+  <div class="detail-layout">
+    <article>
+      <div class="detail-title">
+        <div>
+          <div class="row" style="gap:8px;margin-bottom:10px">
+            <% if (p.is_featured) { %><span class="badge plain tone-amber"><i class="bi bi-star-fill"></i> Featured</span><% } %>
+            <%- include('../partials/status', { s: p.availability_status }) %>
+            <% if (p.verification_status === 'approved') { %><span class="badge plain tone-green"><i class="bi bi-patch-check-fill"></i> Verified listing</span><% } %>
+          </div>
+          <h1 style="margin-bottom:6px"><%= p.title %></h1>
+          <div class="muted"><i class="bi bi-geo-alt"></i> <%= p.address || place %></div>
+        </div>
+        <div class="price"><%= kes(p.price) %><small><%= p.listing_type === 'sale' ? 'asking price' : 'per month' %></small></div>
+      </div>
+
+      <div class="key-facts">
+        <div><i class="bi bi-door-closed"></i><strong><%= p.bedrooms || 'Studio' %></strong><span><%= p.bedrooms ? 'Bedrooms' : 'Layout' %></span></div>
+        <div><i class="bi bi-droplet"></i><strong><%= p.bathrooms %></strong><span>Bathrooms</span></div>
+        <div><i class="bi bi-rulers"></i><strong><%= p.property_size ? Math.round(p.property_size) + ' m²' : '—' %></strong><span>Size</span></div>
+        <div><i class="bi bi-lamp"></i><strong><%= p.furnished ? 'Furnished' : 'Unfurnished' %></strong><span><%= label(p.property_type) %></span></div>
+      </div>
+
+      <section class="detail-section" style="border-top:0;padding-top:0">
+        <h2>About this home</h2>
+        <div class="description"><%= p.description %></div>
+      </section>
+
+      <% if (p.amenityList.length) { %>
+      <section class="detail-section">
+        <h2>What this place offers</h2>
+        <div class="amenities">
+          <% p.amenityList.forEach(function (a) { %><div><i class="bi <%= amenityIcons[a] || 'bi-check2' %>"></i><%= AMENITIES[a] %></div><% }) %>
+        </div>
+      </section>
+      <% } %>
+
+      <section class="detail-section">
+        <h2>Good to know</h2>
+        <dl class="detail-list">
+          <div><dt>Available</dt><dd><%= p.availability_status === 'available' ? (p.available_from && p.available_from > today ? 'From ' + date(p.available_from) : 'Now') : label(p.availability_status) %></dd></div>
+          <div><dt>Pets</dt><dd><%= p.details.pets_allowed ? 'Allowed' : 'Not allowed' %></dd></div>
+          <% if (p.listing_type !== 'sale') { %><div><dt>Minimum stay</dt><dd><%= p.details.minimum_rental_period || 1 %> month<%= (p.details.minimum_rental_period || 1) > 1 ? 's' : '' %></dd></div><% } %>
+          <div><dt>Parking spaces</dt><dd><%= p.details.parking_spaces || 0 %></dd></div>
+          <% if (suitable.length) { %><div><dt>Ideal for</dt><dd><%= suitable.join(', ') %></dd></div><% } %>
+          <div><dt>Listed</dt><dd><%= date(p.created_at) %></dd></div>
+        </dl>
+        <% if (p.details.house_rules) { %>
+          <h3 style="margin-top:24px">House rules</h3>
+          <p class="description"><%= p.details.house_rules %></p>
+        <% } %>
+      </section>
+
+      <% if (p.latitude && p.longitude) { %>
+      <section class="detail-section">
+        <h2>Location</h2>
+        <p class="muted"><%= place %>. The pin shows the approximate area.</p>
+        <div class="map" data-map data-lat="<%= p.latitude %>" data-lng="<%= p.longitude %>" role="img" aria-label="Map of <%= place %>"></div>
+      </section>
+      <% } %>
+
+      <section class="detail-section">
+        <div class="alert alert-info" style="margin:0">
+          <i class="bi bi-shield-exclamation"></i>
+          <div><strong>Stay safe:</strong> always view a home in person before paying, and never send a deposit to someone you have not met. <button type="button" class="link-btn" data-open="reportDialog">Report this listing</button></div>
+        </div>
+      </section>
+    </article>
+
+    <aside class="contact-card" id="contact">
+      <div class="card">
+        <div class="card-body">
+          <div class="landlord">
+            <div class="avatar"><% if (p.landlord_avatar) { %><img src="<%= p.landlord_avatar %>" alt=""><% } else { %><%= initials(p.landlord_name) %><% } %></div>
+            <div style="min-width:0">
+              <strong><%= p.landlord_name %></strong>
+              <div class="small muted"><%= label(p.landlord_role) %> · on HomeFinder since <%= new Date(p.landlord_since).getFullYear() %></div>
+              <% if (p.landlord_verified) { %><div class="verified"><i class="bi bi-patch-check-fill"></i> ID verified</div><% } %>
+            </div>
+          </div>
+
+          <div class="quick-actions" style="margin:18px 0">
+            <a class="btn" href="tel:+<%= phoneDigits %>"><i class="bi bi-telephone"></i> Call</a>
+            <a class="btn" href="https://wa.me/<%= phoneDigits %>?text=<%= encodeURIComponent('Hi, I saw your listing "' + p.title + '" on HomeFinder. Is it still available?') %>" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+          </div>
+
+          <div class="tabs" role="tablist">
+            <button type="button" role="tab" aria-selected="true" aria-controls="tab-message" id="t-message">Send message</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="tab-viewing" id="t-viewing">Book a viewing</button>
+          </div>
+
+          <form id="tab-message" role="tabpanel" aria-labelledby="t-message" class="stack" method="post" action="/properties/<%= p.id %>/inquiry">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="field"><label for="m-name">Your name</label><input class="input" id="m-name" name="name" required maxlength="100" autocomplete="name"></div>
+            <div class="field"><label for="m-phone">Phone</label><input class="input" id="m-phone" name="phone" type="tel" required placeholder="0712 345 678" autocomplete="tel"></div>
+            <div class="field"><label for="m-email">Email <span class="muted">(optional)</span></label><input class="input" id="m-email" name="email" type="email" autocomplete="email"></div>
+            <div class="field"><label for="m-msg">Message</label><textarea class="textarea" id="m-msg" name="message" required minlength="10" rows="4">Hi, is this home still available? I'd like to know more.</textarea></div>
+            <div class="field">
+              <span class="label">Best way to reach you</span>
+              <div class="segmented">
+                <label><input type="radio" name="contact_method" value="phone" checked><span>Call</span></label>
+                <label><input type="radio" name="contact_method" value="whatsapp"><span>WhatsApp</span></label>
+                <label><input type="radio" name="contact_method" value="email"><span>Email</span></label>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-block btn-lg" <%= isPreview ? 'disabled' : '' %>><i class="bi bi-send"></i> Send message</button>
+          </form>
+
+          <form id="tab-viewing" role="tabpanel" aria-labelledby="t-viewing" class="stack" method="post" action="/properties/<%= p.id %>/viewing" hidden>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="form-grid" style="gap:12px">
+              <div class="field"><label for="v-date">Date</label><input class="input" id="v-date" name="date" type="date" min="<%= today %>" required></div>
+              <div class="field"><label for="v-time">Time</label><input class="input" id="v-time" name="time" type="time" min="07:00" max="19:00" value="10:00" required></div>
+            </div>
+            <div class="field"><label for="v-name">Your name</label><input class="input" id="v-name" name="name" required maxlength="100" autocomplete="name"></div>
+            <div class="field"><label for="v-phone">Phone</label><input class="input" id="v-phone" name="phone" type="tel" required placeholder="0712 345 678" autocomplete="tel"></div>
+            <div class="field"><label for="v-note">Note <span class="muted">(optional)</span></label><input class="input" id="v-note" name="message" maxlength="500" placeholder="e.g. I'll come with my partner"></div>
+            <button class="btn btn-primary btn-block btn-lg" <%= isPreview ? 'disabled' : '' %>><i class="bi bi-calendar-check"></i> Request viewing</button>
+          </form>
+
+          <form method="post" action="/properties/<%= p.id %>/save" data-save-form style="margin-top:10px">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="btn btn-ghost btn-block save-toggle <%= isSaved ? 'on' : '' %>" aria-pressed="<%= isSaved %>">
+              <i class="bi <%= isSaved ? 'bi-heart-fill' : 'bi-heart' %>" style="color:var(--accent)"></i> <span><%= isSaved ? 'Saved' : 'Save this home' %></span>
+            </button>
+          </form>
+        </div>
+      </div>
+      <p class="small muted center" style="margin-top:12px"><i class="bi bi-eye"></i> Viewed <%= p.views.toLocaleString() %> times</p>
+    </aside>
+  </div>
+
+  <% if (similar.length) { %>
+  <section style="padding-bottom:72px">
+    <div class="section-head"><h2>Similar homes nearby</h2></div>
+    <div class="grid-cards">
+      <% similar.forEach(function (s) { %><%- include('../partials/property-card', { p: s }) %><% }) %>
+    </div>
+  </section>
+  <% } %>
+</main>
+
+<dialog id="reportDialog">
+  <form method="post" action="/properties/<%= p.id %>/report">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div class="card-head"><h2><i class="bi bi-flag" style="color:var(--red)"></i> Report this listing</h2><button type="button" class="btn btn-ghost btn-icon" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button></div>
+    <div class="card-body stack">
+      <p class="muted" style="margin:0">Tell us what's wrong. Reports are confidential and reviewed by our team.</p>
+      <div class="field">
+        <label for="r-reason">Reason</label>
+        <select class="select" id="r-reason" name="reason" required>
+          <option value="">Choose a reason…</option>
+          <% STATUSES.reportReason.forEach(function (r) { %><option value="<%= r %>"><%= label(r) %></option><% }) %>
+        </select>
+      </div>
+      <div class="field"><label for="r-desc">Details <span class="muted">(optional)</span></label><textarea class="textarea" id="r-desc" name="description" rows="3" maxlength="1000"></textarea></div>
+      <div class="form-grid" style="gap:12px">
+        <div class="field"><label for="r-name">Your name</label><input class="input" id="r-name" name="name" maxlength="100"></div>
+        <div class="field"><label for="r-phone">Phone</label><input class="input" id="r-phone" name="phone" type="tel" maxlength="20"></div>
+      </div>
+      <div class="dialog-actions"><button type="button" class="btn" data-close>Cancel</button><button class="btn btn-danger">Send report</button></div>
+    </div>
+  </form>
+</dialog>
+<%- include('../partials/footer') %>
+<%- include('../partials/doc-end', { map: true }) %>

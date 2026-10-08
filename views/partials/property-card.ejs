@@ -1,0 +1,26 @@
+<% const isSaved = savedIds.includes(p.id); %>
+<article class="property-card">
+  <div class="media">
+    <img src="<%= p.primary_image || FALLBACK_IMAGE %>" alt="" loading="lazy">
+    <div class="tags">
+      <% if (p.is_featured) { %><span class="tag featured"><i class="bi bi-star-fill"></i> Featured</span><% } %>
+      <span class="tag">For <%= p.listing_type === 'sale' ? 'sale' : 'rent' %></span>
+    </div>
+  </div>
+  <form method="post" action="/properties/<%= p.id %>/save" data-save-form>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <button class="save-btn <%= isSaved ? 'on' : '' %>" aria-pressed="<%= isSaved %>" aria-label="Save this home">
+      <i class="bi <%= isSaved ? 'bi-heart-fill' : 'bi-heart' %>"></i>
+    </button>
+  </form>
+  <div class="body">
+    <div class="price"><%= kes(p.price) %><% if (p.listing_type !== 'sale') { %> <small>/ month</small><% } %></div>
+    <h3><a href="/properties/<%= p.id %>"><%= p.title %></a></h3>
+    <div class="loc"><i class="bi bi-geo-alt"></i> <%= [p.estate, p.town, p.county].filter(Boolean).join(', ') %></div>
+    <div class="facts">
+      <span><i class="bi bi-door-closed"></i><%= bedsLabel(p.bedrooms) %></span>
+      <span><i class="bi bi-droplet"></i><%= p.bathrooms %> bath</span>
+      <span><i class="bi bi-house"></i><%= label(p.property_type) %></span>
+    </div>
+  </div>
+</article>

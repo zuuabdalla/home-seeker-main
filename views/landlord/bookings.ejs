@@ -1,0 +1,33 @@
+<%- include('../partials/dash-start') %>
+<%- include('../partials/dash-title', { heading: 'Viewings', sub: 'Confirm requests, then call the seeker to agree on the details.' }) %>
+
+<% if (!bookings.length) { %>
+  <div class="card"><%- include('../partials/empty', { icon: 'bi-calendar-week', heading: 'No viewing requests yet', text: 'House hunters can book a viewing from any of your live listings.' }) %></div>
+<% } else { %>
+<div class="card table-wrap">
+  <table class="table">
+    <thead><tr><th>When</th><th>Who</th><th>Property</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      <% bookings.forEach(function (b) { %>
+      <tr>
+        <td class="nowrap"><strong><%= date(b.viewing_date + 'T00:00') %></strong><div class="small muted"><%= time(b.viewing_time) %></div></td>
+        <td><strong><%= b.seeker_name %></strong><div class="small"><a href="tel:<%= b.seeker_phone %>"><%= b.seeker_phone %></a></div><% if (b.message) { %><div class="small muted" style="max-width:260px">“<%= b.message %>”</div><% } %></td>
+        <td><a href="/properties/<%= b.property_id %>"><%= b.property_title %></a><div class="small muted"><%= b.property_town %></div></td>
+        <td><%- include('../partials/status', { s: b.status }) %></td>
+        <td>
+          <div class="actions">
+            <% if (b.status === 'pending') { %>
+              <form method="post" action="/landlord/viewings/<%= b.id %>/status" class="inline-form"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="status" value="confirmed"><button class="btn btn-sm btn-primary"><i class="bi bi-check-lg"></i> Confirm</button></form>
+              <form method="post" action="/landlord/viewings/<%= b.id %>/status" class="inline-form"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="status" value="cancelled"><button class="btn btn-sm btn-danger">Decline</button></form>
+            <% } else if (b.status === 'confirmed') { %>
+              <form method="post" action="/landlord/viewings/<%= b.id %>/status" class="inline-form"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="status" value="completed"><button class="btn btn-sm">Mark done</button></form>
+            <% } %>
+          </div>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<% } %>
+<%- include('../partials/dash-end') %>

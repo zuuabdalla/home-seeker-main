@@ -1,0 +1,27 @@
+<%- include('../partials/dash-start') %>
+<div class="dash-top">
+  <div><h1>Notifications</h1><p>Updates about your listings, tenants and payments.</p></div>
+  <% if (notifications.some(function (n) { return !n.is_read; })) { %>
+  <form method="post" action="/landlord/notifications/read"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn"><i class="bi bi-check2-all"></i> Mark all as read</button></form>
+  <% } %>
+</div>
+<% const icons = { inquiry: 'bi-chat-left-dots', booking: 'bi-calendar-week', payment: 'bi-credit-card', property: 'bi-buildings', promotion: 'bi-rocket-takeoff', system: 'bi-bell' }; %>
+<% if (!notifications.length) { %>
+  <div class="card"><%- include('../partials/empty', { icon: 'bi-bell', heading: "You're all caught up", text: 'New inquiries, viewing requests and listing updates will show up here.' }) %></div>
+<% } else { %>
+<div class="card">
+  <% notifications.forEach(function (n) { %>
+  <div class="notification <%= n.is_read ? '' : 'unread' %>">
+    <div class="ico"><i class="bi <%= icons[n.type] || 'bi-bell' %>"></i></div>
+    <div style="flex:1;min-width:0">
+      <div class="row between"><strong><%= n.title %></strong><span class="small muted"><%= timeAgo(n.created_at) %></span></div>
+      <div class="muted"><%= n.message %></div>
+    </div>
+    <% if (!n.is_read) { %>
+    <form method="post" action="/landlord/notifications/<%= n.id %>/read"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-sm btn-ghost" title="Mark as read" aria-label="Mark as read"><i class="bi bi-check2"></i></button></form>
+    <% } %>
+  </div>
+  <% }) %>
+</div>
+<% } %>
+<%- include('../partials/dash-end') %>

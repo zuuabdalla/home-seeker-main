@@ -1,0 +1,17 @@
+<%- include('../partials/doc-start') %>
+<%- include('../partials/header') %>
+<main class="container" style="padding-bottom:72px">
+  <div class="page-head">
+    <h1>Saved homes</h1>
+    <p>Your shortlist is kept on this device for 7 days. No account needed.</p>
+  </div>
+  <% if (properties.length) { %>
+    <div class="grid-cards">
+      <% properties.forEach(function (p) { %><%- include('../partials/property-card', { p }) %><% }) %>
+    </div>
+  <% } else { %>
+    <div class="card"><%- include('../partials/empty', { icon: 'bi-heart', heading: 'Nothing saved yet', text: 'Tap the heart on any home to add it to your shortlist and compare later.', actionHref: '/properties', actionText: 'Browse homes' }) %></div>
+  <% } %>
+</main>
+<%- include('../partials/footer') %>
+<%- include('../partials/doc-end') %>

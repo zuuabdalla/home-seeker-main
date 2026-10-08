@@ -1,0 +1,7 @@
+<div class="dash-top">
+  <div>
+    <h1><%= heading %></h1>
+    <% if (locals.sub) { %><p><%= sub %></p><% } %>
+  </div>
+  <% if (locals.actionHref) { %><a href="<%= actionHref %>" class="btn btn-primary"><i class="bi <%= locals.actionIcon || 'bi-plus-lg' %>"></i> <%= actionText %></a><% } %>
+</div>

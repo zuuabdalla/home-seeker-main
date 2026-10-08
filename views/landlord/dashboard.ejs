@@ -1,0 +1,62 @@
+<%- include('../partials/dash-start') %>
+<%- include('../partials/dash-title', { heading: 'Hello, ' + currentUser.name.split(' ')[0], sub: "Here's what's happening with your properties.", actionHref: '/landlord/listings/new', actionText: 'Add listing' }) %>
+
+<div class="stats">
+  <div class="stat"><div class="top">Live listings<i class="bi bi-buildings"></i></div><div class="value"><%= stats.live %></div><div class="note"><%= stats.listings %> total · <%= stats.pending %> in review</div></div>
+  <div class="stat"><div class="top">Total views<i class="bi bi-eye"></i></div><div class="value"><%= Number(stats.views).toLocaleString() %></div><div class="note">Across all listings</div></div>
+  <div class="stat accent"><div class="top">New inquiries<i class="bi bi-chat-left-dots"></i></div><div class="value"><%= stats.newInquiries %></div><div class="note"><a href="/landlord/inquiries">Reply now</a></div></div>
+  <div class="stat accent"><div class="top">Viewings to confirm<i class="bi bi-calendar-week"></i></div><div class="value"><%= stats.pendingViewings %></div><div class="note"><a href="/landlord/viewings">Review requests</a></div></div>
+</div>
+
+<% if (!stats.listings) { %>
+  <div class="card"><%- include('../partials/empty', { icon: 'bi-house-add', heading: 'Add your first listing', text: 'It takes about 5 minutes. Our team reviews new listings within 24 hours, then house hunters can find you.', actionHref: '/landlord/listings/new', actionText: 'Add a listing' }) %></div>
+<% } else { %>
+<div class="dash-grid">
+  <div class="card">
+    <div class="card-head"><h2>Latest inquiries</h2><a href="/landlord/inquiries" class="btn btn-sm">View all</a></div>
+    <% if (inquiries.length) { %>
+    <ul class="list">
+      <% inquiries.forEach(function (i) { %>
+      <li>
+        <div class="avatar sm"><%= initials(i.seeker_name) %></div>
+        <div class="grow">
+          <div class="title"><%= i.seeker_name %> <span class="muted" style="font-weight:400">about</span> <%= i.property_title %></div>
+          <div class="meta"><%= i.message.slice(0, 90) %><%= i.message.length > 90 ? '…' : '' %></div>
+        </div>
+        <div style="text-align:right"><%- include('../partials/status', { s: i.status }) %><div class="meta small"><%= timeAgo(i.created_at) %></div></div>
+      </li>
+      <% }) %>
+    </ul>
+    <% } else { %><p class="card-body muted" style="margin:0">No inquiries yet. They'll appear here as soon as someone messages you.</p><% } %>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>Upcoming viewings</h2><a href="/landlord/viewings" class="btn btn-sm">View all</a></div>
+    <% if (bookings.length) { %>
+    <ul class="list">
+      <% bookings.forEach(function (b) { const d = new Date(b.viewing_date + 'T00:00'); %>
+      <li>
+        <div class="date-tile"><strong><%= d.getDate() %></strong><span><%= d.toLocaleString('en', { month: 'short' }) %></span></div>
+        <div class="grow"><div class="title"><%= b.seeker_name %></div><div class="meta"><%= time(b.viewing_time) %> · <%= b.property_title %></div></div>
+        <%- include('../partials/status', { s: b.status }) %>
+      </li>
+      <% }) %>
+    </ul>
+    <% } else { %><p class="card-body muted" style="margin:0">No viewings booked yet.</p><% } %>
+  </div>
+</div>
+
+<div class="card" style="margin-top:20px">
+  <div class="card-head"><h2>Your listings</h2><a href="/landlord/listings" class="btn btn-sm">Manage</a></div>
+  <ul class="list">
+    <% listings.forEach(function (p) { %>
+    <li>
+      <img class="thumb" src="<%= p.primary_image || FALLBACK_IMAGE %>" alt="">
+      <div class="grow"><div class="title"><%= p.title %></div><div class="meta"><%= kes(p.price) %> · <%= p.town %> · <%= p.views %> views</div></div>
+      <%- include('../partials/status', { s: p.verification_status }) %>
+    </li>
+    <% }) %>
+  </ul>
+</div>
+<% } %>
+<%- include('../partials/dash-end') %>

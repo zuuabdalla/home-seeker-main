@@ -1,0 +1,31 @@
+<header class="site-header" id="siteHeader">
+  <div class="container">
+    <a href="/" class="brand"><span class="brand-mark"><i class="bi bi-house-heart-fill"></i></span>HomeFinder</a>
+
+    <nav class="nav" aria-label="Main">
+      <a href="/properties" class="<%= currentPath === '/properties' ? 'active' : '' %>">Browse homes</a>
+      <a href="/properties?listing=rent">Rent</a>
+      <a href="/properties?listing=sale">Buy</a>
+      <a href="/about" class="<%= currentPath === '/about' ? 'active' : '' %>">About</a>
+      <a href="/contact" class="<%= currentPath === '/contact' ? 'active' : '' %>">Contact</a>
+    </nav>
+
+    <div class="header-actions">
+      <a href="/saved" class="btn btn-ghost btn-icon saved-link" aria-label="Saved homes" title="Saved homes">
+        <i class="bi bi-heart"></i>
+        <% if (savedIds.length) { %><span class="count-dot" data-saved-count><%= savedIds.length %></span><% } %>
+      </a>
+      <% if (currentUser) { %>
+        <a href="<%= currentUser.role === 'admin' ? '/admin' : '/landlord' %>" class="btn btn-primary hide-sm">
+          <i class="bi bi-grid-1x2"></i> Dashboard
+        </a>
+      <% } else { %>
+        <a href="/login" class="btn btn-ghost hide-sm">Log in</a>
+        <a href="/register" class="btn btn-primary hide-sm"><i class="bi bi-plus-lg"></i> List your property</a>
+      <% } %>
+      <button class="btn btn-ghost btn-icon menu-toggle" aria-label="Open menu" aria-expanded="false" data-menu-toggle>
+        <i class="bi bi-list" style="font-size:22px"></i>
+      </button>
+    </div>
+  </div>
+</header>

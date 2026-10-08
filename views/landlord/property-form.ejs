@@ -1,0 +1,152 @@
+<%- include('../partials/dash-start', { map: true }) %>
+<%
+  const p = property;
+  const isEdit = Boolean(p.id);
+  const d = p.details || {};
+  const v = function (key) { return p[key] === null || p[key] === undefined ? '' : p[key]; };
+%>
+<div class="dash-top">
+  <div>
+    <a href="/landlord/listings" class="small muted"><i class="bi bi-arrow-left"></i> My listings</a>
+    <h1 style="margin-top:6px"><%= isEdit ? 'Edit listing' : 'Add a listing' %></h1>
+    <p><%= isEdit ? 'Changes are re-checked by our team before going live again.' : 'Great listings get more inquiries: clear photos, an honest description and the right price.' %></p>
+  </div>
+</div>
+
+<%- include('../partials/errors') %>
+
+<form method="post" action="<%= isEdit ? '/landlord/listings/' + p.id : '/landlord/listings' %>" enctype="multipart/form-data" id="listingForm" class="form-layout">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+  <div class="card">
+    <section class="form-section">
+      <h2>The basics</h2>
+      <p>What are you listing?</p>
+      <div class="form-grid">
+        <div class="field full"><label for="title">Listing title</label><input class="input" id="title" name="title" value="<%= v('title') %>" required minlength="10" maxlength="200" placeholder="e.g. Bright 2 bedroom apartment with balcony in Kilimani"></div>
+        <div class="field">
+          <label for="property_type">Property type</label>
+          <select class="select" id="property_type" name="property_type" required>
+            <option value="">Choose…</option>
+            <% PROPERTY_TYPES.forEach(function (t) { %><option value="<%= t %>" <%= p.property_type === t ? 'selected' : '' %>><%= label(t) %></option><% }) %>
+          </select>
+        </div>
+        <div class="field">
+          <span class="label">Listing for</span>
+          <div class="segmented">
+            <label><input type="radio" name="listing_type" value="rent" <%= p.listing_type !== 'sale' ? 'checked' : '' %>><span>Rent</span></label>
+            <label><input type="radio" name="listing_type" value="sale" <%= p.listing_type === 'sale' ? 'checked' : '' %>><span>Sale</span></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2>Price & size</h2>
+      <p>Be accurate. Listings priced far below the area average get flagged.</p>
+      <div class="form-grid three">
+        <div class="field"><label for="price">Price</label><div class="input-group"><span class="prefix">KSh</span><input class="input" id="price" name="price" type="number" min="1" step="100" value="<%= v('price') %>" required></div><span class="hint">Monthly rent, or asking price for sale.</span></div>
+        <div class="field"><label for="bedrooms">Bedrooms</label><input class="input" id="bedrooms" name="bedrooms" type="number" min="0" max="20" value="<%= v('bedrooms') === '' ? 1 : v('bedrooms') %>"><span class="hint">Use 0 for a bedsitter or studio.</span></div>
+        <div class="field"><label for="bathrooms">Bathrooms</label><input class="input" id="bathrooms" name="bathrooms" type="number" min="0" max="20" value="<%= v('bathrooms') === '' ? 1 : v('bathrooms') %>"></div>
+        <div class="field"><label for="property_size">Size (m²)</label><input class="input" id="property_size" name="property_size" type="number" min="0" step="1" value="<%= v('property_size') %>" placeholder="Optional"></div>
+        <div class="field"><label for="parking_spaces">Parking spaces</label><input class="input" id="parking_spaces" name="parking_spaces" type="number" min="0" max="20" value="<%= d.parking_spaces || 0 %>"></div>
+        <div class="field"><label for="minimum_rental_period">Minimum stay (months)</label><input class="input" id="minimum_rental_period" name="minimum_rental_period" type="number" min="1" max="60" value="<%= d.minimum_rental_period || 1 %>"></div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2>Location</h2>
+      <p>Click the map to drop a pin. Seekers see the approximate area, not the exact door.</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="county">County</label>
+          <select class="select" id="county" name="county" required>
+            <option value="">Choose…</option>
+            <% COUNTIES.forEach(function (c) { %><option <%= p.county === c ? 'selected' : '' %>><%= c %></option><% }) %>
+          </select>
+        </div>
+        <div class="field"><label for="town">Town / area</label><input class="input" id="town" name="town" value="<%= v('town') %>" required maxlength="100" placeholder="e.g. Kilimani"></div>
+        <div class="field"><label for="estate">Estate / street <span class="muted">(optional)</span></label><input class="input" id="estate" name="estate" value="<%= v('estate') %>" maxlength="150" placeholder="e.g. Argwings Kodhek Rd"></div>
+        <div class="field"><label for="address">Building / landmark <span class="muted">(optional)</span></label><input class="input" id="address" name="address" value="<%= v('address') %>" maxlength="255" placeholder="e.g. Opposite Yaya Centre"></div>
+        <div class="field full">
+          <div class="row between"><span class="label">Map pin</span><button type="button" class="btn btn-sm btn-ghost" data-locate><i class="bi bi-crosshair"></i> Find from address</button></div>
+          <div class="map map-pick" data-map-picker data-lat="<%= v('latitude') %>" data-lng="<%= v('longitude') %>"></div>
+          <input type="hidden" name="latitude" value="<%= v('latitude') %>">
+          <input type="hidden" name="longitude" value="<%= v('longitude') %>">
+          <span class="hint" data-pin-status><%= p.latitude ? 'Pin set. Drag it to adjust.' : 'No pin yet. Optional, but listings with a map get more views.' %></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2>Amenities</h2>
+      <p>Tick everything the home offers.</p>
+      <div class="pick-grid">
+        <% Object.keys(AMENITIES).forEach(function (a) { %>
+          <label class="pick"><input type="checkbox" name="amenities" value="<%= a %>" <%= p.amenityList.includes(a) ? 'checked' : '' %>><span><%= AMENITIES[a] %></span></label>
+        <% }) %>
+      </div>
+      <div class="form-grid" style="margin-top:20px">
+        <label class="check"><input type="checkbox" name="furnished" value="1" <%= p.furnished ? 'checked' : '' %>> Furnished</label>
+        <label class="check"><input type="checkbox" name="pets_allowed" value="1" <%= d.pets_allowed ? 'checked' : '' %>> Pets allowed</label>
+      </div>
+      <div class="field" style="margin-top:18px">
+        <span class="label">Ideal for</span>
+        <div class="pick-grid">
+          <label class="pick"><input type="checkbox" name="suitable_for_families" value="1" <%= d.suitable_for_families ? 'checked' : '' %>><span>Families</span></label>
+          <label class="pick"><input type="checkbox" name="suitable_for_professionals" value="1" <%= d.suitable_for_professionals ? 'checked' : '' %>><span>Professionals</span></label>
+          <label class="pick"><input type="checkbox" name="suitable_for_students" value="1" <%= d.suitable_for_students ? 'checked' : '' %>><span>Students</span></label>
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <div class="row between"><h2>Description</h2><button type="button" class="btn btn-sm ai-btn" data-ai-describe><i class="bi bi-stars"></i> Write it for me</button></div>
+      <p>Fill in the details above first, then let AI draft a description you can edit.</p>
+      <div class="field"><label for="description" class="sr-only">Description</label><textarea class="textarea" id="description" name="description" rows="8" required minlength="50" placeholder="Describe the rooms, natural light, finishes, neighbourhood, nearby shops and transport…"><%= v('description') %></textarea><span class="hint" data-char-count></span></div>
+      <div class="field" style="margin-top:18px"><label for="house_rules">House rules <span class="muted">(optional)</span></label><textarea class="textarea" id="house_rules" name="house_rules" rows="3" maxlength="1000" placeholder="e.g. No loud music after 10pm"><%= d.house_rules || '' %></textarea></div>
+    </section>
+
+    <section class="form-section">
+      <h2>Photos</h2>
+      <p>Up to 10 JPG, PNG or WEBP images, 5 MB each. The first photo is the cover.</p>
+      <% if (isEdit && p.images.length) { %>
+        <div class="photo-grid" style="margin:0 0 14px">
+          <% p.images.forEach(function (img, i) { %>
+          <div class="photo">
+            <img src="<%= img.image_url %>" alt="">
+            <% if (img.is_primary) { %><span class="cover">Cover</span><% } %>
+            <label><input type="checkbox" name="remove_images" value="<%= img.id %>"> Remove</label>
+          </div>
+          <% }) %>
+        </div>
+      <% } %>
+      <label class="dropzone" data-dropzone>
+        <i class="bi bi-cloud-arrow-up"></i>
+        <strong><%= isEdit ? 'Add more photos' : 'Click to upload or drag photos here' %></strong>
+        <span class="small muted">Bright, landscape photos work best</span>
+        <input type="file" name="images" accept="image/jpeg,image/png,image/webp" multiple class="sr-only" data-photo-input <%= isEdit ? '' : 'required' %>>
+      </label>
+      <div class="photo-grid" data-photo-preview></div>
+    </section>
+  </div>
+
+  <aside class="side-card">
+    <div class="card">
+      <div class="card-body stack">
+        <div class="field">
+          <label for="availability_status">Availability</label>
+          <select class="select" id="availability_status" name="availability_status">
+            <% STATUSES.availability.forEach(function (s) { %><option value="<%= s %>" <%= p.availability_status === s ? 'selected' : '' %>><%= label(s) %></option><% }) %>
+          </select>
+        </div>
+        <div class="field"><label for="available_from">Available from</label><input class="input" id="available_from" name="available_from" type="date" value="<%= v('available_from') %>"></div>
+        <hr style="margin:4px 0">
+        <button class="btn btn-primary btn-lg btn-block" data-submit><i class="bi bi-check2-circle"></i> <%= isEdit ? 'Save changes' : 'Submit for review' %></button>
+        <a href="/landlord/listings" class="btn btn-ghost btn-block">Cancel</a>
+        <p class="small muted" style="margin:0"><i class="bi bi-shield-check"></i> Our team checks every listing, usually within 24 hours. You'll get a notification when it's live.</p>
+      </div>
+    </div>
+  </aside>
+</form>
+<%- include('../partials/dash-end', { map: true, script: 'listing-form' }) %>

@@ -1,0 +1,50 @@
+<%- include('doc-start', { map: locals.map }) %>
+<%
+  const isAdmin = currentUser.role === 'admin';
+  const link = function (href, icon, text, exact, pill) {
+    const active = exact ? currentPath === href || currentPath === href + '/' : currentPath.startsWith(href);
+    return '<a href="' + href + '" class="side-link' + (active ? ' active' : '') + '"' + (active ? ' aria-current="page"' : '') + '><i class="bi ' + icon + '"></i>' + text + (pill ? '<span class="pill">' + pill + '</span>' : '') + '</a>';
+  };
+%>
+<div class="dash" id="dash">
+  <div class="dash-mobile-bar">
+    <a href="/" class="brand"><span class="brand-mark"><i class="bi bi-house-heart-fill"></i></span>HomeFinder</a>
+    <button class="btn btn-ghost btn-icon" data-dash-toggle aria-label="Open menu"><i class="bi bi-list" style="font-size:22px"></i></button>
+  </div>
+
+  <aside class="sidebar" aria-label="Dashboard navigation">
+    <a href="/" class="brand"><span class="brand-mark"><i class="bi bi-house-heart-fill"></i></span><span>HomeFinder<small><%= isAdmin ? 'Admin console' : 'Landlord portal' %></small></span></a>
+
+    <% if (isAdmin) { %>
+      <%- link('/admin', 'bi-speedometer2', 'Overview', true) %>
+      <div class="side-label">Moderation</div>
+      <%- link('/admin/properties', 'bi-buildings', 'Listings') %>
+      <%- link('/admin/reports', 'bi-flag', 'Reports') %>
+      <%- link('/admin/users', 'bi-people', 'Users') %>
+      <div class="side-label">Activity</div>
+      <%- link('/admin/activity', 'bi-chat-left-dots', 'Inquiries & viewings') %>
+      <%- link('/admin/payments', 'bi-credit-card', 'Payments') %>
+      <%- link('/admin/messages', 'bi-envelope', 'Contact messages') %>
+    <% } else { %>
+      <%- link('/landlord', 'bi-speedometer2', 'Overview', true) %>
+      <%- link('/landlord/listings', 'bi-buildings', 'My listings') %>
+      <div class="side-label">Tenants</div>
+      <%- link('/landlord/inquiries', 'bi-chat-left-dots', 'Inquiries') %>
+      <%- link('/landlord/viewings', 'bi-calendar-week', 'Viewings') %>
+      <%- link('/landlord/notifications', 'bi-bell', 'Notifications', false, unreadCount || null) %>
+      <div class="side-label">Grow</div>
+      <%- link('/landlord/promote', 'bi-rocket-takeoff', 'Promote') %>
+    <% } %>
+    <div class="side-label">Account</div>
+    <%- link('/profile', 'bi-person-circle', 'Profile') %>
+    <%- link('/properties', 'bi-box-arrow-up-right', 'View website', true) %>
+
+    <div class="spacer"></div>
+    <div class="side-user">
+      <div class="avatar sm"><% if (currentUser.avatar) { %><img src="<%= currentUser.avatar %>" alt=""><% } else { %><%= initials(currentUser.name) %><% } %></div>
+      <div style="min-width:0"><strong><%= currentUser.name %></strong><span><%= currentUser.role %></span></div>
+      <form method="post" action="/logout"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button title="Log out" aria-label="Log out"><i class="bi bi-box-arrow-right"></i></button></form>
+    </div>
+  </aside>
+
+  <main class="dash-main">

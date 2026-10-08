@@ -1,0 +1,43 @@
+<%- include('../partials/dash-start') %>
+<%- include('../partials/dash-title', { heading: 'My listings', sub: 'Edit details, track views and promote your homes.', actionHref: '/landlord/listings/new', actionText: 'Add listing' }) %>
+
+<% if (!properties.length) { %>
+  <div class="card"><%- include('../partials/empty', { icon: 'bi-buildings', heading: 'No listings yet', text: 'Add your first property and start receiving inquiries.', actionHref: '/landlord/listings/new', actionText: 'Add a listing' }) %></div>
+<% } else { %>
+<div class="card table-wrap">
+  <table class="table">
+    <thead><tr><th>Property</th><th>Price</th><th>Status</th><th>Views</th><th></th></tr></thead>
+    <tbody>
+      <% properties.forEach(function (p) { %>
+      <tr>
+        <td>
+          <div class="prop">
+            <img class="thumb" src="<%= p.primary_image || FALLBACK_IMAGE %>" alt="">
+            <div><strong><%= p.title %></strong><span class="small muted"><%= [p.estate, p.town].filter(Boolean).join(', ') %> · <%= label(p.property_type) %></span></div>
+          </div>
+        </td>
+        <td class="nowrap"><%= kes(p.price) %></td>
+        <td>
+          <%- include('../partials/status', { s: p.verification_status }) %>
+          <% if (p.is_featured) { %><span class="badge plain tone-amber" style="margin-top:4px"><i class="bi bi-star-fill"></i> Featured</span><% } %>
+          <% if (p.rejection_reason) { %><div class="small" style="color:var(--red);max-width:240px;margin-top:4px"><%= p.rejection_reason %></div><% } %>
+        </td>
+        <td><%= p.views %></td>
+        <td>
+          <div class="actions">
+            <a href="/properties/<%= p.id %>" class="btn btn-sm btn-ghost" title="View"><i class="bi bi-eye"></i></a>
+            <a href="/landlord/listings/<%= p.id %>/edit" class="btn btn-sm"><i class="bi bi-pencil"></i> Edit</a>
+            <% if (p.verification_status === 'approved') { %><a href="/landlord/promote?property=<%= p.id %>" class="btn btn-sm btn-ghost" title="Promote"><i class="bi bi-rocket-takeoff"></i></a><% } %>
+            <form method="post" action="/landlord/listings/<%= p.id %>/delete" class="inline-form" data-confirm="Delete “<%= p.title %>”? This cannot be undone.">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="btn btn-sm btn-danger" title="Delete" aria-label="Delete"><i class="bi bi-trash"></i></button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<% } %>
+<%- include('../partials/dash-end') %>

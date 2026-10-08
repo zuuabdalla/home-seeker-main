@@ -1,0 +1,38 @@
+<%- include('../partials/dash-start') %>
+<%- include('../partials/dash-title', { heading: 'Inquiries', sub: 'Messages from people interested in your homes. Reply quickly, since good tenants move fast.' }) %>
+
+<% if (!inquiries.length) { %>
+  <div class="card"><%- include('../partials/empty', { icon: 'bi-chat-left-dots', heading: 'No inquiries yet', text: 'When house hunters message you about a listing, it shows up here.' }) %></div>
+<% } else { %>
+<div class="card">
+  <% inquiries.forEach(function (i) {
+       const wa = String(i.seeker_phone).replace(/\D/g, '').replace(/^0/, '254'); %>
+  <div class="message-card">
+    <div class="head">
+      <div class="row" style="gap:12px">
+        <div class="avatar sm"><%= initials(i.seeker_name) %></div>
+        <div><strong><%= i.seeker_name %></strong><div class="small muted">About <a href="/properties/<%= i.property_id %>"><%= i.property_title %></a> · <%= timeAgo(i.created_at) %> · prefers <%= label(i.preferred_contact_method) %></div></div>
+      </div>
+      <%- include('../partials/status', { s: i.status }) %>
+    </div>
+    <blockquote><%= i.message %></blockquote>
+    <div class="row between">
+      <div class="contact-links">
+        <a class="btn btn-sm" href="tel:+<%= wa %>"><i class="bi bi-telephone"></i> <%= i.seeker_phone %></a>
+        <a class="btn btn-sm" href="https://wa.me/<%= wa %>" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+        <% if (i.seeker_email) { %><a class="btn btn-sm" href="mailto:<%= i.seeker_email %>"><i class="bi bi-envelope"></i> Email</a><% } %>
+      </div>
+      <form method="post" action="/landlord/inquiries/<%= i.id %>/status" class="inline-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label class="sr-only" for="s-<%= i.id %>">Status</label>
+        <select class="select" id="s-<%= i.id %>" name="status" data-autosubmit>
+          <% STATUSES.inquiry.forEach(function (s) { %><option value="<%= s %>" <%= s === i.status ? 'selected' : '' %>><%= label(s) %></option><% }) %>
+        </select>
+        <noscript><button class="btn btn-sm">Save</button></noscript>
+      </form>
+    </div>
+  </div>
+  <% }) %>
+</div>
+<% } %>
+<%- include('../partials/dash-end') %>

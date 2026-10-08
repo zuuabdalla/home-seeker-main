@@ -1,0 +1,45 @@
+<%- include('../partials/dash-start') %>
+<%- include('../partials/dash-title', { heading: 'My profile', sub: 'This is what house hunters see on your listings.' }) %>
+
+<div class="dash-grid">
+  <form class="card" method="post" action="/profile" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <section class="form-section">
+      <div class="row" style="gap:20px;margin-bottom:24px">
+        <div class="avatar lg" data-avatar-preview><% if (profile.profile_image) { %><img src="<%= profile.profile_image %>" alt=""><% } else { %><%= initials(profile.full_name) %><% } %></div>
+        <div>
+          <label class="btn btn-sm"><i class="bi bi-camera"></i> Change photo<input type="file" name="profile_image" accept="image/jpeg,image/png,image/webp" class="sr-only" data-avatar-input></label>
+          <div class="small muted" style="margin-top:6px">JPG, PNG or WEBP, up to 3 MB.</div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label for="full_name">Full name</label><input class="input" id="full_name" name="full_name" value="<%= profile.full_name %>" required maxlength="100"></div>
+        <div class="field"><label for="phone">Phone</label><input class="input" id="phone" name="phone" type="tel" value="<%= profile.phone %>" required></div>
+        <div class="field full"><label for="email">Email</label><input class="input" id="email" value="<%= profile.email %>" disabled><span class="hint">Contact support to change your email.</span></div>
+        <div class="field full"><label for="bio">About you <span class="muted">(optional)</span></label><textarea class="textarea" id="bio" name="bio" rows="4" maxlength="1000" placeholder="A short introduction for tenants"><%= profile.bio || '' %></textarea></div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:20px">Save profile</button>
+    </section>
+  </form>
+
+  <div class="stack" style="margin:0">
+    <div class="card"><div class="card-body">
+      <div class="row between"><strong>Account status</strong><%- include('../partials/status', { s: profile.is_verified ? 'approved' : 'pending' }) %></div>
+      <p class="small muted" style="margin:8px 0 0"><%= profile.is_verified ? 'Your identity is verified. Listings show a verified badge.' : 'Our team verifies landlords after their first listing is approved.' %></p>
+      <hr style="margin:16px 0">
+      <div class="small muted">Member since <%= date(profile.created_at) %> · <%= label(profile.role) %> account</div>
+    </div></div>
+
+    <form class="card" method="post" action="/profile/password" id="password">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="card-head"><h2>Change password</h2></div>
+      <div class="card-body stack">
+        <div class="field"><label for="current_password">Current password</label><input class="input" id="current_password" name="current_password" type="password" required autocomplete="current-password"></div>
+        <div class="field"><label for="new_password">New password</label><input class="input" id="new_password" name="new_password" type="password" required minlength="8" autocomplete="new-password"></div>
+        <div class="field"><label for="confirm_password">Confirm new password</label><input class="input" id="confirm_password" name="confirm_password" type="password" required minlength="8" autocomplete="new-password"></div>
+        <button class="btn">Update password</button>
+      </div>
+    </form>
+  </div>
+</div>
+<%- include('../partials/dash-end') %>

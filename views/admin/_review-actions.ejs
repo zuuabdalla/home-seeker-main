@@ -1,0 +1,20 @@
+<div class="actions">
+  <a href="/properties/<%= p.id %>" class="btn btn-sm btn-ghost" title="Preview" target="_blank"><i class="bi bi-eye"></i></a>
+  <% if (p.verification_status !== 'approved') { %>
+  <form method="post" action="/admin/properties/<%= p.id %>/approve" class="inline-form"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-sm btn-primary"><i class="bi bi-check-lg"></i> Approve</button></form>
+  <% } %>
+  <% if (p.verification_status !== 'rejected') { %>
+  <button type="button" class="btn btn-sm btn-danger" data-open="reject-<%= p.id %>">Reject</button>
+  <dialog id="reject-<%= p.id %>">
+    <form method="post" action="/admin/properties/<%= p.id %>/reject">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="card-head"><h2>Reject listing</h2><button type="button" class="btn btn-ghost btn-icon" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button></div>
+      <div class="card-body stack">
+        <p class="muted" style="margin:0">“<%= p.title %>” will be hidden, and <%= p.landlord_name %> will see your reason so they can fix it.</p>
+        <div class="field"><label for="reason-<%= p.id %>">Reason</label><textarea class="textarea" id="reason-<%= p.id %>" name="reason" rows="3" required minlength="5" maxlength="500" placeholder="e.g. Photos don't match the description"></textarea></div>
+        <div class="dialog-actions"><button type="button" class="btn" data-close>Cancel</button><button class="btn btn-danger">Reject listing</button></div>
+      </div>
+    </form>
+  </dialog>
+  <% } %>
+</div>

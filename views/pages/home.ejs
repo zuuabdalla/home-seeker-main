@@ -1,0 +1,141 @@
+<%- include('../partials/doc-start') %>
+<%- include('../partials/header') %>
+<main>
+  <section class="hero">
+    <div class="container">
+      <div class="eyebrow" style="color:#f3b48f">Verified homes across Kenya</div>
+      <h1>Find a place you can call <em>home.</em></h1>
+      <p class="lead">Apartments, bedsitters, family houses and more. Every listing is checked by our team, and you contact landlords directly. No sign-up, no agent fees.</p>
+
+      <form class="search-panel" action="/properties" method="get" role="search">
+        <div class="slot">
+          <label for="q">Where</label>
+          <input id="q" name="q" type="text" placeholder="Westlands, Kilimani, Nyali…" autocomplete="off">
+        </div>
+        <div class="slot">
+          <label for="type">Type</label>
+          <select id="type" name="type">
+            <option value="">Any type</option>
+            <% PROPERTY_TYPES.forEach(function (t) { %><option value="<%= t %>"><%= label(t) %></option><% }) %>
+          </select>
+        </div>
+        <div class="slot">
+          <label for="max_price">Budget</label>
+          <select id="max_price" name="max_price">
+            <option value="">Any budget</option>
+            <option value="15000">Up to KSh 15,000</option>
+            <option value="30000">Up to KSh 30,000</option>
+            <option value="60000">Up to KSh 60,000</option>
+            <option value="100000">Up to KSh 100,000</option>
+            <option value="200000">Up to KSh 200,000</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-lg" type="submit"><i class="bi bi-search"></i> Search</button>
+      </form>
+
+      <div class="hero-proof">
+        <span><i class="bi bi-patch-check-fill"></i>Every listing reviewed</span>
+        <span><i class="bi bi-telephone-fill"></i>Talk to landlords directly</span>
+        <span><i class="bi bi-wallet2"></i>Free for house hunters</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="trust-strip">
+    <div class="container">
+      <div class="trust-item"><i class="bi bi-shield-check"></i><div><strong>Checked listings</strong><span>Reviewed before going live</span></div></div>
+      <div class="trust-item"><i class="bi bi-calendar2-check"></i><div><strong>Book viewings</strong><span>Pick a date that suits you</span></div></div>
+      <div class="trust-item"><i class="bi bi-chat-heart"></i><div><strong>No middlemen</strong><span>Message landlords directly</span></div></div>
+      <div class="trust-item"><i class="bi bi-flag"></i><div><strong>Report scams</strong><span>We act on every report</span></div></div>
+    </div>
+  </section>
+
+  <% if (featured.length) { %>
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Featured</div>
+          <h2>Handpicked homes this week</h2>
+        </div>
+        <a href="/properties" class="btn">View all homes <i class="bi bi-arrow-right"></i></a>
+      </div>
+      <div class="grid-cards">
+        <% featured.forEach(function (p) { %><%- include('../partials/property-card', { p }) %><% }) %>
+      </div>
+    </div>
+  </section>
+  <% } %>
+
+  <section class="section" style="padding-top:<%= featured.length ? 0 : 72 %>px">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Popular areas</div>
+          <h2>Start with a county</h2>
+        </div>
+      </div>
+      <div class="areas">
+        <a class="area" href="/properties?county=Nairobi" style="--c1:#1f5b45;--c2:#2f7d61"><span>Capital city</span><strong>Nairobi</strong></a>
+        <a class="area" href="/properties?county=Mombasa" style="--c1:#1f6f8b;--c2:#3a9bb5"><span>Coast living</span><strong>Mombasa</strong></a>
+        <a class="area" href="/properties?county=Kisumu" style="--c1:#b4572a;--c2:#d9804e"><span>Lakeside</span><strong>Kisumu</strong></a>
+        <a class="area" href="/properties?county=Nakuru" style="--c1:#6d5a2c;--c2:#a08544"><span>Rift Valley</span><strong>Nakuru</strong></a>
+      </div>
+    </div>
+  </section>
+
+  <% if (latest.length) { %>
+  <section class="section" style="padding-top:0">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Just listed</div>
+          <h2>New on HomeFinder</h2>
+        </div>
+        <a href="/properties?sort=newest" class="btn">See the latest <i class="bi bi-arrow-right"></i></a>
+      </div>
+      <div class="grid-cards">
+        <% latest.forEach(function (p) { %><%- include('../partials/property-card', { p }) %><% }) %>
+      </div>
+    </div>
+  </section>
+  <% } %>
+
+  <section class="section" style="background:var(--surface);border-block:1px solid var(--line)">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">How it works</div>
+          <h2>Moving made simple</h2>
+        </div>
+        <p>From first search to getting the keys, in three steps.</p>
+      </div>
+      <div class="steps">
+        <div class="step"><h3>Search & save</h3><p>Filter by area, budget and must-haves. Tap the heart to keep a shortlist, no account needed.</p></div>
+        <div class="step"><h3>Message or book a viewing</h3><p>Send the landlord a question or choose a viewing date. They get it instantly and reply by phone or WhatsApp.</p></div>
+        <div class="step"><h3>View in person, then move in</h3><p>Always see the home before paying anything. Spot something off? Report it and we will investigate.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="cta-band">
+        <div>
+          <div class="eyebrow" style="color:#f3b48f">For landlords & agents</div>
+          <h2>Fill your vacancy faster.</h2>
+          <p>List for free, get inquiries straight to your dashboard and manage viewings in one place.</p>
+          <a href="/register" class="btn btn-accent btn-lg"><i class="bi bi-plus-lg"></i> List your property</a>
+        </div>
+        <ul class="cta-list">
+          <li><i class="bi bi-check-circle-fill"></i> Free listings with up to 10 photos</li>
+          <li><i class="bi bi-check-circle-fill"></i> Inquiries and viewing requests in one inbox</li>
+          <li><i class="bi bi-check-circle-fill"></i> AI help writing your description</li>
+          <li><i class="bi bi-check-circle-fill"></i> Feature your listing from KSh 500 via M-Pesa</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+<%- include('../partials/footer') %>
+<%- include('../partials/doc-end') %>

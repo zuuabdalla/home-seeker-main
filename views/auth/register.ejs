@@ -1,0 +1,28 @@
+<%- include('../partials/doc-start') %>
+<main class="auth">
+  <%- include('_art') %>
+  <div class="auth-form">
+    <div class="inner">
+      <h1>List your property</h1>
+      <p class="sub">Create a free account. House hunters don't need one; this is for landlords and agents.</p>
+      <%- include('../partials/errors') %>
+      <form method="post" action="/register" class="stack">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="role-pick">
+          <label><input type="radio" name="role" value="landlord" <%= form.role !== 'agent' ? 'checked' : '' %>><span><strong>Landlord</strong>I own the property</span></label>
+          <label><input type="radio" name="role" value="agent" <%= form.role === 'agent' ? 'checked' : '' %>><span><strong>Agent</strong>I manage for owners</span></label>
+        </div>
+        <div class="field"><label for="full_name">Full name</label><input class="input" id="full_name" name="full_name" value="<%= form.full_name || '' %>" required maxlength="100" autocomplete="name"></div>
+        <div class="form-grid" style="gap:14px">
+          <div class="field"><label for="email">Email</label><input class="input" id="email" name="email" type="email" value="<%= form.email || '' %>" required autocomplete="email"></div>
+          <div class="field"><label for="phone">Phone</label><input class="input" id="phone" name="phone" type="tel" value="<%= form.phone || '' %>" required placeholder="0712 345 678" autocomplete="tel"></div>
+        </div>
+        <div class="field"><label for="password">Password</label><input class="input" id="password" name="password" type="password" required minlength="8" autocomplete="new-password"><span class="hint">At least 8 characters.</span></div>
+        <div class="field"><label for="confirm_password">Confirm password</label><input class="input" id="confirm_password" name="confirm_password" type="password" required minlength="8" autocomplete="new-password"></div>
+        <button class="btn btn-primary btn-lg btn-block">Create account</button>
+      </form>
+      <p class="auth-switch">Already have an account? <a href="/login">Log in</a></p>
+    </div>
+  </div>
+</main>
+<%- include('../partials/doc-end') %>

@@ -1,0 +1,9 @@
+<% if (locals.errors && errors.length) { %>
+<div class="alert alert-error" role="alert">
+  <i class="bi bi-exclamation-octagon-fill"></i>
+  <div>
+    <strong><%= errors.length === 1 ? 'Please fix this:' : 'Please fix these ' + errors.length + ' things:' %></strong>
+    <ul><% errors.forEach(function (e) { %><li><%= e %></li><% }) %></ul>
+  </div>
+</div>
+<% } %>

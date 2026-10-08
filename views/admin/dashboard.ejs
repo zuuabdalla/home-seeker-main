@@ -1,0 +1,47 @@
+<%- include('../partials/dash-start') %>
+<%- include('../partials/dash-title', { heading: 'Overview', sub: 'Platform health and what needs your attention today.' }) %>
+
+<div class="stats">
+  <div class="stat accent"><div class="top">Awaiting review<i class="bi bi-hourglass-split"></i></div><div class="value"><%= stats.pending %></div><div class="note"><a href="/admin/properties?status=pending">Review listings</a></div></div>
+  <div class="stat accent"><div class="top">Open reports<i class="bi bi-flag"></i></div><div class="value"><%= stats.reports %></div><div class="note"><a href="/admin/reports?status=pending">Investigate</a></div></div>
+  <div class="stat"><div class="top">Listings<i class="bi bi-buildings"></i></div><div class="value"><%= stats.listings %></div><div class="note"><%= stats.landlords %> landlords & agents</div></div>
+  <div class="stat"><div class="top">Revenue<i class="bi bi-cash-stack"></i></div><div class="value"><%= kes(stats.revenue) %></div><div class="note"><%= stats.inquiries %> inquiries · <%= stats.bookings %> viewings</div></div>
+</div>
+
+<div class="card" style="margin-bottom:20px">
+  <div class="card-head"><h2>Waiting for review</h2><a href="/admin/properties?status=pending" class="btn btn-sm">See all</a></div>
+  <% if (pending.length) { %>
+  <div class="table-wrap"><table class="table"><tbody>
+    <% pending.forEach(function (p) { %>
+    <tr>
+      <td><div class="prop"><img class="thumb" src="<%= p.primary_image || FALLBACK_IMAGE %>" alt=""><div><strong><%= p.title %></strong><span class="small muted"><%= p.landlord_name %> · <%= p.town %> · <%= kes(p.price) %> · <%= timeAgo(p.created_at) %></span></div></div></td>
+      <td><%- include('_review-actions', { p }) %></td>
+    </tr>
+    <% }) %>
+  </tbody></table></div>
+  <% } else { %><p class="card-body muted" style="margin:0"><i class="bi bi-check2-circle" style="color:var(--green)"></i> All caught up. No listings waiting.</p><% } %>
+</div>
+
+<div class="dash-grid">
+  <div class="card">
+    <div class="card-head"><h2>Recent reports</h2><a href="/admin/reports" class="btn btn-sm">All reports</a></div>
+    <% if (reports.length) { %>
+    <ul class="list">
+      <% reports.forEach(function (r) { %>
+      <li><div class="grow"><div class="title"><%= label(r.reason) %>: <%= r.property_title %></div><div class="meta"><%= timeAgo(r.created_at) %> · reported <%= r.times_reported %>×</div></div><%- include('../partials/status', { s: r.status }) %></li>
+      <% }) %>
+    </ul>
+    <% } else { %><p class="card-body muted" style="margin:0">No open reports.</p><% } %>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>Latest payments</h2><a href="/admin/payments" class="btn btn-sm">All payments</a></div>
+    <% if (payments.length) { %>
+    <ul class="list">
+      <% payments.forEach(function (pay) { %>
+      <li><div class="grow"><div class="title"><%= kes(pay.amount) %> · <%= pay.user_name %></div><div class="meta"><%= pay.package_name %> · <%= timeAgo(pay.created_at) %></div></div><%- include('../partials/status', { s: pay.status }) %></li>
+      <% }) %>
+    </ul>
+    <% } else { %><p class="card-body muted" style="margin:0">No payments yet.</p><% } %>
+  </div>
+</div>
+<%- include('../partials/dash-end') %>

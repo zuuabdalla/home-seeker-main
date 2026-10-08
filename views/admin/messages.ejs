@@ -1,0 +1,23 @@
+<%- include('../partials/dash-start') %>
+<%- include('../partials/dash-title', { heading: 'Contact messages', sub: 'Messages sent through the website contact form.' }) %>
+<% if (!messages.length) { %>
+  <div class="card"><%- include('../partials/empty', { icon: 'bi-envelope', heading: 'Inbox zero', text: 'No contact messages yet.' }) %></div>
+<% } else { %>
+<div class="card">
+  <% messages.forEach(function (m) { %>
+  <div class="message-card">
+    <div class="head">
+      <div><strong><%= m.subject || 'No subject' %></strong><div class="small muted"><%= m.name %> · <a href="mailto:<%= m.email %>"><%= m.email %></a><%= m.phone ? ' · ' + m.phone : '' %> · <%= timeAgo(m.created_at) %></div></div>
+      <form method="post" action="/admin/messages/<%= m.id %>/status" class="inline-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <select class="select" name="status" data-autosubmit aria-label="Status">
+          <% ['new', 'read', 'replied', 'closed'].forEach(function (s) { %><option value="<%= s %>" <%= s === m.status ? 'selected' : '' %>><%= label(s) %></option><% }) %>
+        </select>
+      </form>
+    </div>
+    <blockquote style="margin-bottom:0"><%= m.message %></blockquote>
+  </div>
+  <% }) %>
+</div>
+<% } %>
+<%- include('../partials/dash-end') %>

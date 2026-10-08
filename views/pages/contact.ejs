@@ -1,0 +1,32 @@
+<%- include('../partials/doc-start') %>
+<%- include('../partials/header') %>
+<main class="container" style="padding:56px 0 80px">
+  <div class="form-layout" style="grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:48px">
+    <div>
+      <div class="eyebrow">Contact</div>
+      <h1>We're here to help.</h1>
+      <p class="muted" style="font-size:17px">Questions about a listing, your account or a payment? Send us a message and we'll reply within one working day.</p>
+      <div class="stack" style="margin-top:32px">
+        <div class="trust-item"><i class="bi bi-envelope"></i><div><strong>Email</strong><span>support@homefinder.co.ke</span></div></div>
+        <div class="trust-item"><i class="bi bi-telephone"></i><div><strong>Phone</strong><span>Mon to Fri, 8am to 6pm</span></div></div>
+        <div class="trust-item"><i class="bi bi-shield-check"></i><div><strong>Reporting a scam?</strong><span>Use "Report this listing" on the property page</span></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <form class="card-body stack" method="post" action="/contact">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <%- include('../partials/errors') %>
+        <div class="form-grid">
+          <div class="field"><label for="c-name">Name</label><input class="input" id="c-name" name="name" value="<%= form.name || '' %>" required maxlength="100" autocomplete="name"></div>
+          <div class="field"><label for="c-email">Email</label><input class="input" id="c-email" name="email" type="email" value="<%= form.email || '' %>" required autocomplete="email"></div>
+          <div class="field"><label for="c-phone">Phone <span class="muted">(optional)</span></label><input class="input" id="c-phone" name="phone" type="tel" value="<%= form.phone || '' %>" autocomplete="tel"></div>
+          <div class="field"><label for="c-subject">Subject</label><input class="input" id="c-subject" name="subject" value="<%= form.subject || '' %>" maxlength="200"></div>
+          <div class="field full"><label for="c-message">Message</label><textarea class="textarea" id="c-message" name="message" rows="6" required minlength="10"><%= form.message || '' %></textarea></div>
+        </div>
+        <button class="btn btn-primary btn-lg"><i class="bi bi-send"></i> Send message</button>
+      </form>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>
+<%- include('../partials/doc-end') %>

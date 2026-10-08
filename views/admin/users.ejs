@@ -1,0 +1,50 @@
+<%- include('../partials/dash-start') %>
+<%- include('../partials/dash-title', { heading: 'Users', sub: 'Landlords and agents who list on HomeFinder.' }) %>
+
+<div class="row between" style="margin-bottom:6px">
+  <nav class="filter-tabs">
+    <% [[null, 'All'], ['landlord', 'Landlords'], ['agent', 'Agents'], ['admin', 'Admins']].forEach(function (t) { %>
+      <a href="/admin/users<%= t[0] ? '?role=' + t[0] : '' %>" class="<%= role === t[0] ? 'active' : '' %>"><%= t[1] %></a>
+    <% }) %>
+  </nav>
+  <form method="get" action="/admin/users" class="row" style="gap:8px;margin-bottom:18px">
+    <% if (role) { %><input type="hidden" name="role" value="<%= role %>"><% } %>
+    <div class="input-group"><i class="bi bi-search"></i><input class="input" name="q" value="<%= q || '' %>" placeholder="Name, email or phone" style="min-height:38px"></div>
+  </form>
+</div>
+
+<div class="card table-wrap">
+  <table class="table">
+    <thead><tr><th>User</th><th>Phone</th><th>Listings</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      <% users.forEach(function (u) { %>
+      <tr>
+        <td><div class="prop" style="min-width:220px"><div class="avatar sm"><%= initials(u.full_name) %></div><div><strong><%= u.full_name %></strong><span class="small muted"><%= u.email %> · <%= label(u.role) %></span></div></div></td>
+        <td class="nowrap"><%= u.phone %></td>
+        <td><%= u.listings %></td>
+        <td>
+          <div class="row" style="gap:6px">
+            <span class="badge tone-<%= u.is_active ? 'green' : 'red' %>"><%= u.is_active ? 'Active' : 'Suspended' %></span>
+            <% if (u.is_verified) { %><span class="badge plain tone-blue"><i class="bi bi-patch-check-fill"></i> Verified</span><% } %>
+          </div>
+        </td>
+        <td>
+          <% if (u.role !== 'admin') { %>
+          <div class="actions">
+            <form method="post" action="/admin/users/<%= u.id %>/flag" class="inline-form">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="flag" value="is_verified"><input type="hidden" name="value" value="<%= u.is_verified ? 0 : 1 %>">
+              <button class="btn btn-sm"><%= u.is_verified ? 'Unverify' : 'Verify' %></button>
+            </form>
+            <form method="post" action="/admin/users/<%= u.id %>/flag" class="inline-form" <% if (u.is_active) { %>data-confirm="Suspend <%= u.full_name %>? They won't be able to log in."<% } %>>
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="flag" value="is_active"><input type="hidden" name="value" value="<%= u.is_active ? 0 : 1 %>">
+              <button class="btn btn-sm <%= u.is_active ? 'btn-danger' : '' %>"><%= u.is_active ? 'Suspend' : 'Reactivate' %></button>
+            </form>
+          </div>
+          <% } %>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<%- include('../partials/dash-end') %>

@@ -1,0 +1,27 @@
+<%- include('../partials/doc-start') %>
+<main class="auth">
+  <%- include('_art') %>
+  <div class="auth-form">
+    <div class="inner">
+      <h1>Welcome back</h1>
+      <p class="sub">Log in to manage your listings, inquiries and viewings.</p>
+      <%- include('../partials/errors') %>
+      <form method="post" action="/login" class="stack">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="hidden" name="next" value="<%= next %>">
+        <div class="field"><label for="email">Email</label><input class="input" id="email" name="email" type="email" value="<%= email %>" required autocomplete="email" autofocus></div>
+        <div class="field">
+          <div class="row between"><label for="password" class="label">Password</label><a href="/forgot-password" class="small">Forgot password?</a></div>
+          <div class="input-group">
+            <input class="input" id="password" name="password" type="password" required autocomplete="current-password" style="padding-right:48px">
+            <button type="button" class="btn btn-ghost btn-icon" data-toggle-password="password" aria-label="Show password" style="position:absolute;right:2px;top:2px;min-height:40px"><i class="bi bi-eye"></i></button>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-lg btn-block">Log in</button>
+      </form>
+      <p class="auth-switch">New to HomeFinder? <a href="/register">Create a free account</a></p>
+      <p class="auth-switch" style="margin-top:8px"><a href="/" class="muted"><i class="bi bi-arrow-left"></i> Back to homes</a></p>
+    </div>
+  </div>
+</main>
+<%- include('../partials/doc-end') %>

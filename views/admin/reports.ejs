@@ -1,0 +1,37 @@
+<%- include('../partials/dash-start') %>
+<%- include('../partials/dash-title', { heading: 'Reports', sub: 'Listings flagged by house hunters. Investigate quickly to keep the platform safe.' }) %>
+
+<nav class="filter-tabs">
+  <% [[null, 'All']].concat(STATUSES.report.map(function (s) { return [s, label(s)]; })).forEach(function (t) { %>
+    <a href="/admin/reports<%= t[0] ? '?status=' + t[0] : '' %>" class="<%= status === t[0] ? 'active' : '' %>"><%= t[1] %></a>
+  <% }) %>
+</nav>
+
+<% if (!reports.length) { %>
+  <div class="card"><%- include('../partials/empty', { icon: 'bi-shield-check', heading: 'No reports', text: 'Nothing has been flagged in this category.' }) %></div>
+<% } else { %>
+<div class="card">
+  <% reports.forEach(function (r) { %>
+  <div class="message-card">
+    <div class="head">
+      <div>
+        <strong><%= label(r.reason) %></strong>
+        <div class="small muted"><a href="/properties/<%= r.property_id %>" target="_blank"><%= r.property_title %></a> by <%= r.landlord_name %> · <%= timeAgo(r.created_at) %><% if (r.times_reported > 1) { %> · <span style="color:var(--red);font-weight:600">reported <%= r.times_reported %> times</span><% } %></div>
+      </div>
+      <%- include('../partials/status', { s: r.status }) %>
+    </div>
+    <% if (r.description) { %><blockquote><%= r.description %></blockquote><% } %>
+    <% if (r.reporter_name || r.reporter_phone) { %><div class="small muted" style="margin-bottom:12px">Reported by <%= r.reporter_name || 'anonymous' %><%= r.reporter_phone ? ' · ' + r.reporter_phone : '' %></div><% } %>
+    <form method="post" action="/admin/reports/<%= r.id %>" class="row" style="gap:8px">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input class="input" name="notes" value="<%= r.admin_notes || '' %>" placeholder="Internal notes" style="flex:1;min-width:200px;min-height:38px">
+      <select class="select" name="status" style="width:auto;min-height:38px" aria-label="Status">
+        <% STATUSES.report.forEach(function (s) { %><option value="<%= s %>" <%= s === r.status ? 'selected' : '' %>><%= label(s) %></option><% }) %>
+      </select>
+      <button class="btn btn-sm">Save</button>
+    </form>
+  </div>
+  <% }) %>
+</div>
+<% } %>
+<%- include('../partials/dash-end') %>

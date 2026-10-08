@@ -1,0 +1,50 @@
+<%- include('../partials/doc-start') %>
+<%- include('../partials/header') %>
+<main>
+  <section class="section" style="padding-bottom:40px">
+    <div class="container">
+      <div class="eyebrow">About HomeFinder</div>
+      <h1 style="max-width:18ch">House hunting in Kenya, without the guesswork.</h1>
+      <p class="prose" style="font-size:18px;color:var(--muted)">HomeFinder connects people looking for a home with the landlords and agents who have one. We check every listing before it goes live, and we act quickly on reports, so you can spend less time worrying and more time finding the right place.</p>
+    </div>
+  </section>
+
+  <section class="container" style="padding-bottom:72px">
+    <div class="feature-grid">
+      <div class="card feature"><i class="bi bi-patch-check"></i><h3>Every listing reviewed</h3><p>Our team checks new and edited listings for accuracy before anyone can see them.</p></div>
+      <div class="card feature"><i class="bi bi-people"></i><h3>Direct contact</h3><p>Message, call or WhatsApp the landlord yourself. No middlemen and no viewing fees from us.</p></div>
+      <div class="card feature"><i class="bi bi-flag"></i><h3>Report anything odd</h3><p>Every report is read by a person. Listings that break our rules are removed and accounts suspended.</p></div>
+    </div>
+  </section>
+
+  <section class="section" id="safety" style="background:var(--surface);border-block:1px solid var(--line)">
+    <div class="container prose">
+      <div class="eyebrow">Safety</div>
+      <h2>How to rent safely</h2>
+      <ul>
+        <li><strong>View before you pay.</strong> Never send a deposit or "booking fee" for a home you haven't seen in person.</li>
+        <li><strong>Meet the right person.</strong> Ask for the landlord's or agent's ID and confirm they have the right to let the property.</li>
+        <li><strong>Get it in writing.</strong> Sign a tenancy agreement and keep receipts for every payment.</li>
+        <li><strong>Too good to be true?</strong> A price far below similar homes in the area is a common warning sign. Report it.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="promote">
+    <div class="container">
+      <div class="cta-band">
+        <div>
+          <div class="eyebrow" style="color:#f3b48f">Featured listings</div>
+          <h2>Get seen first.</h2>
+          <p>Featured homes appear at the top of search results and on our home page. Promote any approved listing from KSh 500, paid securely via M-Pesa.</p>
+          <a href="/register" class="btn btn-accent btn-lg">Start listing for free</a>
+        </div>
+        <ul class="cta-list">
+          <% Object.values(PACKAGES).forEach(function (pkg) { %><li><i class="bi bi-star-fill"></i> <%= pkg.name %>: <%= pkg.days %> days for <%= kes(pkg.price) %></li><% }) %>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+<%- include('../partials/footer') %>
+<%- include('../partials/doc-end') %>

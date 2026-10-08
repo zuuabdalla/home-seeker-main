@@ -1,0 +1,72 @@
+<%- include('../partials/dash-start') %>
+<%- include('../partials/dash-title', { heading: 'Promote a listing', sub: 'Featured homes appear first in search and on the home page.' }) %>
+
+<% if (!properties.length) { %>
+  <div class="card"><%- include('../partials/empty', { icon: 'bi-rocket-takeoff', heading: 'Nothing to promote yet', text: 'Once one of your listings is approved, you can feature it here.', actionHref: '/landlord/listings', actionText: 'View my listings' }) %></div>
+<% } else { %>
+<form method="post" action="/payments/start" class="card">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <section class="form-section">
+    <h2>1. Choose a package</h2>
+    <p>Pay once via M-Pesa. Promotions don't auto-renew.</p>
+    <div class="packages">
+      <% Object.keys(PACKAGES).forEach(function (key) { const pkg = PACKAGES[key]; %>
+      <label class="package">
+        <input type="radio" name="package" value="<%= key %>" <%= key === 'standard' ? 'checked' : '' %> required>
+        <span>
+          <% if (key === 'standard') { %><em class="popular">Most popular</em><% } %>
+          <div class="name"><%= pkg.name.replace(' Promotion', '') %></div>
+          <div class="amount"><%= kes(pkg.price) %></div>
+          <div class="small muted"><%= pkg.days %> days featured</div>
+          <ul>
+            <li><i class="bi bi-check-lg"></i>Top of search results</li>
+            <li><i class="bi bi-check-lg"></i>"Featured" badge</li>
+            <% if (key !== 'basic') { %><li><i class="bi bi-check-lg"></i>Shown on the home page</li><% } %>
+          </ul>
+        </span>
+      </label>
+      <% }) %>
+    </div>
+  </section>
+  <section class="form-section">
+    <h2>2. Pick the listing and pay</h2>
+    <p>We'll send an M-Pesa prompt to this number. Enter your PIN to confirm.</p>
+    <div class="form-grid">
+      <div class="field">
+        <label for="property_id">Listing</label>
+        <select class="select" id="property_id" name="property_id" required>
+          <% properties.forEach(function (p) { %><option value="<%= p.id %>" <%= selected === p.id ? 'selected' : '' %>><%= p.title %><%= p.is_featured ? ' (featured now)' : '' %></option><% }) %>
+        </select>
+      </div>
+      <div class="field"><label for="phone">M-Pesa number</label><div class="input-group"><i class="bi bi-phone"></i><input class="input" id="phone" name="phone" type="tel" required placeholder="0712 345 678" autocomplete="tel"></div></div>
+    </div>
+    <button class="btn btn-accent btn-lg" style="margin-top:20px"><i class="bi bi-lightning-charge-fill"></i> Pay with M-Pesa</button>
+  </section>
+</form>
+<% } %>
+
+<% if (payments.length) { %>
+<div class="card table-wrap" style="margin-top:24px">
+  <div class="card-head"><h2>Payment history</h2></div>
+  <table class="table">
+    <thead><tr><th>Date</th><th>Listing</th><th>Package</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      <% payments.forEach(function (pay) { %>
+      <tr>
+        <td class="nowrap"><%= date(pay.created_at) %></td>
+        <td><%= pay.property_title || '—' %></td>
+        <td><%= pay.package_name %></td>
+        <td class="nowrap"><%= kes(pay.amount) %></td>
+        <td><%- include('../partials/status', { s: pay.status }) %><% if (pay.transaction_reference) { %><div class="small muted"><%= pay.transaction_reference %></div><% } %></td>
+        <td>
+          <% if (pay.status === 'pending' && pay.payhero_reference) { %>
+          <form method="post" action="/payments/<%= encodeURIComponent(pay.external_reference) %>/refresh" class="inline-form"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-sm"><i class="bi bi-arrow-clockwise"></i> Check status</button></form>
+          <% } %>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<% } %>
+<%- include('../partials/dash-end') %>
