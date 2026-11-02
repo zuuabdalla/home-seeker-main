@@ -68,6 +68,10 @@ async function confirmWithPayHero(payment) {
     await Payment.fail(payment.id, result.raw);
     return 'failed';
   }
+  if (['CANCELLED', 'CANCELED'].includes(result.status)) {
+    await Payment.cancel(payment.id, result.raw);
+    return 'cancelled';
+  }
   return 'pending';
 }
 
@@ -100,6 +104,7 @@ exports.refresh = async (req, res) => {
     const messages = {
       completed: ['success', 'Payment confirmed. Your listing is featured!'],
       failed: ['error', 'That payment did not go through. You were not charged.'],
+      cancelled: ['error', 'The M-Pesa request was cancelled. No promotion was created.'],
       pending: ['info', 'Still waiting for M-Pesa. Please check again in a minute.'],
     };
     req.flash(...(messages[status] || messages.pending));

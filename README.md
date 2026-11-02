@@ -84,6 +84,12 @@ scripts/check-views  Renders every page with sample data (npm run check)
 - **Saved homes** are stored in the visitor's session, so no account is needed.
 - **Payments:** the landlord picks a package, and PayHero sends an M-Pesa prompt to their phone. When PayHero calls `/payments/callback`, we **ask PayHero for the transaction status ourselves**. Only a confirmed `SUCCESS` features the listing. The callback URL also carries a secret token. If a callback never arrives, landlords can press "Check status".
 
+### Configure PayHero M-Pesa payments
+
+Set `PAYHERO_USERNAME`, `PAYHERO_PASSWORD`, and the numeric `PAYHERO_CHANNEL_ID` from your PayHero account. Set `PAYHERO_CALLBACK_SECRET` to a long, random value; live payment checkout remains unavailable until all four values are present. `PAYHERO_API_URL` is optional and defaults to `https://backend.payhero.co.ke/api/v2`.
+
+Set `APP_URL` to the site's public HTTPS origin in production so PayHero can reach the callback at `/payments/callback`. The callback endpoint validates the configured secret and then verifies the transaction directly with PayHero before marking it paid. For local UI testing only, set `PAYMENTS_SIMULATE=true` in development; simulation is rejected in production.
+
 ## Security notes
 
 - Passwords are hashed with bcrypt (cost 12). Sessions are stored in MySQL, use httpOnly and sameSite cookies, and get a new ID on login.

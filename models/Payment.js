@@ -74,6 +74,12 @@ const Payment = {
     ]);
   },
 
+  async cancel(id, raw) {
+    await db.query(`UPDATE payments SET status = 'cancelled', callback_data = ? WHERE id = ? AND status = 'pending'`, [
+      raw ? JSON.stringify(raw) : null, id,
+    ]);
+  },
+
   // userId = null returns every payment (admin view).
   async list(userId = null, limit = 100) {
     const [rows] = await db.query(

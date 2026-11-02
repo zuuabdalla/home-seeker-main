@@ -3,6 +3,10 @@
 
 <% if (!properties.length) { %>
   <div class="card"><%- include('../partials/empty', { icon: 'bi-rocket-takeoff', heading: 'Nothing to promote yet', text: 'Once one of your listings is approved, you can feature it here.', actionHref: '/landlord/listings', actionText: 'View my listings' }) %></div>
+<% } else if (!paymentsEnabled) { %>
+  <div class="card">
+    <%- include('../partials/empty', { icon: 'bi-credit-card', heading: 'M-Pesa payments are unavailable', text: 'The site administrator needs to complete the PayHero configuration before listings can be promoted.' }) %>
+  </div>
 <% } else { %>
 <form method="post" action="/payments/start" class="card">
   <input type="hidden" name="_csrf" value="<%= csrfToken %>">

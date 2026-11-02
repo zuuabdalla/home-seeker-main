@@ -12,7 +12,14 @@ function authHeader() {
 
 const PayHero = {
   isConfigured() {
-    return Boolean(process.env.PAYHERO_USERNAME && process.env.PAYHERO_PASSWORD && process.env.PAYHERO_CHANNEL_ID);
+    const channelId = Number(process.env.PAYHERO_CHANNEL_ID);
+    return Boolean(
+      process.env.PAYHERO_USERNAME &&
+      process.env.PAYHERO_PASSWORD &&
+      process.env.PAYHERO_CALLBACK_SECRET &&
+      Number.isSafeInteger(channelId) &&
+      channelId > 0
+    );
   },
 
   // Local testing only: approves payments without M-Pesa. config/env.js blocks it in production.
@@ -74,8 +81,11 @@ const PayHero = {
   // The callback URL carries a secret so random requests are rejected early.
   callbackTokenValid(token) {
     const secret = process.env.PAYHERO_CALLBACK_SECRET || '';
-    if (!secret || typeof token !== 'string' || token.length !== secret.length) return false;
-    return crypto.timingSafeEqual(Buffer.from(token), Buffer.from(secret));
+    if (!secret || typeof token !== 'string') return false;
+    const actual = Buffer.from(token);
+    const expected = Buffer.from(secret);
+    if (actual.length !== expected.length) return false;
+    return crypto.timingSafeEqual(actual, expected);
   },
 
   // Pulls our external reference out of PayHero's callback body.

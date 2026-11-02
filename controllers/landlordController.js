@@ -4,6 +4,7 @@ const Booking = require('../models/Booking');
 const Notification = require('../models/Notification');
 const Payment = require('../models/Payment');
 const Promotion = require('../models/Promotion');
+const PayHero = require('../services/payheroService');
 const { STATUSES } = require('../lib/constants');
 const { removeUploads, uploadedUrls } = require('../middleware/uploadMiddleware');
 const { positiveId } = require('../lib/validate');
@@ -153,6 +154,7 @@ exports.promote = async (req, res) => {
     properties: live.rows,
     promotions,
     payments,
+    paymentsEnabled: PayHero.isConfigured() || PayHero.isSimulated(),
     selected: positiveId(req.query.property),
   });
 };
