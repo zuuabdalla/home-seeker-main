@@ -84,6 +84,51 @@ exports.register = async (req, res) => {
   res.redirect('/landlord');
 };
 
+exports.adminSignupPage = (req, res) => {
+  res.render('auth/admin-signup', { title: 'Create admin account', form: {} });
+};
+
+exports.adminSignup = async (req, res, next) => {
+  const form = {
+    full_name: text(req.body.full_name, 100),
+    email: text(req.body.email, 150).toLowerCase(),
+    phone: text(req.body.phone, 20),
+  };
+  const password = typeof req.body.password === 'string' ? req.body.password : '';
+
+  const errors = [];
+  if (form.full_name.length < 2) errors.push('Enter your full name.');
+  if (!isEmail(form.email)) errors.push('Enter a valid email address.');
+  if (!isPhone(form.phone)) errors.push('Enter a valid Kenyan phone number, e.g. 0712 345 678.');
+  if (password.length < MIN_PASSWORD) errors.push(`Use a password of at least ${MIN_PASSWORD} characters.`);
+  if (password !== req.body.confirm_password) errors.push('The two passwords do not match.');
+  if (!errors.length && (await User.emailOrPhoneTaken(form.email, form.phone))) {
+    errors.push('An account with this email or phone number already exists.');
+  }
+  if (errors.length) {
+    return res.status(400).render('auth/admin-signup', { title: 'Create admin account', form, errors });
+  }
+
+  try {
+    await User.createAdmin({ ...form, password });
+  } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(400).render('auth/admin-signup', {
+        title: 'Create admin account',
+        form,
+        errors: ['An account with this email or phone number already exists.'],
+      });
+    }
+    return next(err);
+  }
+
+  req.session.destroy((err) => {
+    if (err) return next(err);
+    res.clearCookie('hf.sid');
+    res.redirect('/login?next=%2Fadmin');
+  });
+};
+
 exports.logout = (req, res) => {
   req.session.destroy(() => {
     res.clearCookie('hf.sid');

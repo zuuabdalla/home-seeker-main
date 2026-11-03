@@ -60,6 +60,8 @@ Importing the SQL file replaces any existing `homefinder_db` database.
 
 Change or delete these accounts before going live.
 
+Administrators can add another admin from the **Add admin** button in the admin dashboard. The `/admin/signup` page requires an existing signed-in administrator; after creating the account, the current session is signed out and the new admin can sign in at `/login`.
+
 ## Project layout
 
 ```

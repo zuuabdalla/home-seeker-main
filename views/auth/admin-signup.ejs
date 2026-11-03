@@ -1,0 +1,25 @@
+<%- include('../partials/doc-start') %>
+<main class="auth">
+  <%- include('_art') %>
+  <div class="auth-form">
+    <div class="inner">
+      <h1>Create admin account</h1>
+      <p class="sub">Create an administrator account. Only a signed-in admin can access this page.</p>
+      <%- include('../partials/errors') %>
+      <form method="post" action="/admin/signup" class="stack">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="field"><label for="full_name">Full name</label><input class="input" id="full_name" name="full_name" value="<%= form.full_name || '' %>" required maxlength="100" autocomplete="name" autofocus></div>
+        <div class="form-grid" style="gap:14px">
+          <div class="field"><label for="email">Email</label><input class="input" id="email" name="email" type="email" value="<%= form.email || '' %>" required autocomplete="email"></div>
+          <div class="field"><label for="phone">Phone</label><input class="input" id="phone" name="phone" type="tel" value="<%= form.phone || '' %>" required placeholder="0712 345 678" autocomplete="tel"></div>
+        </div>
+        <div class="field"><label for="password">Password</label><input class="input" id="password" name="password" type="password" required minlength="8" autocomplete="new-password"><span class="hint">At least 8 characters.</span></div>
+        <div class="field"><label for="confirm_password">Confirm password</label><input class="input" id="confirm_password" name="confirm_password" type="password" required minlength="8" autocomplete="new-password"></div>
+        <button class="btn btn-primary btn-lg btn-block">Create admin account</button>
+      </form>
+      <p class="auth-switch">After creation, you will be signed out. Sign in with the new admin account to open the dashboard.</p>
+      <p class="auth-switch" style="margin-top:8px"><a href="/admin"><i class="bi bi-arrow-left"></i> Back to admin dashboard</a></p>
+    </div>
+  </div>
+</main>
+<%- include('../partials/doc-end') %>

@@ -34,6 +34,10 @@ const User = {
     return this.findById(result.insertId);
   },
 
+  async createAdmin({ full_name, email, phone, password }) {
+    return this.create({ full_name, email, phone, password, role: 'admin' });
+  },
+
   async updateProfile(id, { full_name, phone, bio, profile_image }) {
     const fields = { full_name, phone, bio };
     if (profile_image) fields.profile_image = profile_image;

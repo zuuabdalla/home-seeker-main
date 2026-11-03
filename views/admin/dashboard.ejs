@@ -1,5 +1,5 @@
 <%- include('../partials/dash-start') %>
-<%- include('../partials/dash-title', { heading: 'Overview', sub: 'Platform health and what needs your attention today.' }) %>
+<%- include('../partials/dash-title', { heading: 'Overview', sub: 'Platform health and what needs your attention today.', actionHref: '/admin/signup', actionText: 'Add admin', actionIcon: 'bi-person-plus' }) %>
 
 <div class="stats">
   <div class="stat accent"><div class="top">Awaiting review<i class="bi bi-hourglass-split"></i></div><div class="value"><%= stats.pending %></div><div class="note"><a href="/admin/properties?status=pending">Review listings</a></div></div>
