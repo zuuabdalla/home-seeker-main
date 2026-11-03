@@ -122,10 +122,13 @@ exports.adminSignup = async (req, res, next) => {
     return next(err);
   }
 
-  req.session.destroy((err) => {
+  req.session.regenerate((err) => {
     if (err) return next(err);
-    res.clearCookie('hf.sid');
-    res.redirect('/login?next=%2Fadmin');
+    req.flash('success', 'Admin account created. Sign in with your new credentials.');
+    req.session.save((saveErr) => {
+      if (saveErr) return next(saveErr);
+      res.redirect('/login?next=%2Fadmin');
+    });
   });
 };
 
