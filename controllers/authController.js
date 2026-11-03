@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+const env = require('../config/env');
 const User = require('../models/User');
 const { safeRedirectPath } = require('../middleware/auth');
 const { removeUploads, uploadedUrls } = require('../middleware/uploadMiddleware');
@@ -84,11 +86,42 @@ exports.register = async (req, res) => {
   res.redirect('/landlord');
 };
 
+function validAdminInviteCode(code) {
+  if (!env.adminSignupInviteCode || typeof code !== 'string' || code.length > 256) return false;
+  const expected = crypto.createHash('sha256').update(env.adminSignupInviteCode).digest();
+  const actual = crypto.createHash('sha256').update(code).digest();
+  return crypto.timingSafeEqual(actual, expected);
+}
+
 exports.adminSignupPage = (req, res) => {
-  res.render('auth/admin-signup', { title: 'Create admin account', form: {} });
+  res.render('auth/admin-signup', {
+    title: 'Create admin account',
+    form: {},
+    signupEnabled: Boolean(env.adminSignupInviteCode),
+  });
 };
 
 exports.adminSignup = async (req, res, next) => {
+  if (!env.adminSignupInviteCode) {
+    return res.status(503).render('auth/admin-signup', {
+      title: 'Create admin account',
+      form: {},
+      signupEnabled: false,
+    });
+  }
+  if (!validAdminInviteCode(req.body.invite_code)) {
+    return res.status(403).render('auth/admin-signup', {
+      title: 'Create admin account',
+      form: {
+        full_name: text(req.body.full_name, 100),
+        email: text(req.body.email, 150).toLowerCase(),
+        phone: text(req.body.phone, 20),
+      },
+      signupEnabled: true,
+      errors: ['The admin invite code is invalid.'],
+    });
+  }
+
   const form = {
     full_name: text(req.body.full_name, 100),
     email: text(req.body.email, 150).toLowerCase(),
@@ -106,7 +139,12 @@ exports.adminSignup = async (req, res, next) => {
     errors.push('An account with this email or phone number already exists.');
   }
   if (errors.length) {
-    return res.status(400).render('auth/admin-signup', { title: 'Create admin account', form, errors });
+    return res.status(400).render('auth/admin-signup', {
+      title: 'Create admin account',
+      form,
+      signupEnabled: true,
+      errors,
+    });
   }
 
   try {
@@ -116,6 +154,7 @@ exports.adminSignup = async (req, res, next) => {
       return res.status(400).render('auth/admin-signup', {
         title: 'Create admin account',
         form,
+        signupEnabled: true,
         errors: ['An account with this email or phone number already exists.'],
       });
     }

@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const auth = require('../controllers/authController');
-const { requireAdmin, requireLogin } = require('../middleware/auth');
+const { requireLogin } = require('../middleware/auth');
 const { loginLimiter } = require('../middleware/security');
 const upload = require('../middleware/uploadMiddleware');
 
@@ -8,8 +8,8 @@ router.get('/login', auth.loginPage);
 router.post('/login', loginLimiter, auth.login);
 router.get('/register', auth.registerPage);
 router.post('/register', loginLimiter, auth.register);
-router.get('/admin/signup', requireAdmin, auth.adminSignupPage);
-router.post('/admin/signup', requireAdmin, loginLimiter, auth.adminSignup);
+router.get('/admin/signup', auth.adminSignupPage);
+router.post('/admin/signup', loginLimiter, auth.adminSignup);
 router.post('/logout', auth.logout);
 router.get('/forgot-password', auth.forgotPage);
 

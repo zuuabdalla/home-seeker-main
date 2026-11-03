@@ -22,4 +22,5 @@ module.exports = {
   port: Number(process.env.PORT) || 3000,
   sessionSecret: process.env.SESSION_SECRET || 'dev-only-secret-change-me-in-production',
   appUrl: process.env.APP_URL || `http://localhost:${Number(process.env.PORT) || 3000}`,
+  adminSignupInviteCode: process.env.ADMIN_SIGNUP_INVITE_CODE || '',
 };
